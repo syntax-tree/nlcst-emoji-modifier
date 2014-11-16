@@ -1,0 +1,21 @@
+{
+  "name": "nlcst-emoji-modifier",
+  "version": "0.0.1",
+  "description": "Emoji in NLCST",
+  "license": "MIT",
+  "keywords": [
+    "nlcst",
+    "emoji"
+  ],
+  "dependencies": {
+    "wooorm/gemoji": "^0.2.0",
+    "wooorm/nlcst-to-string": "^0.1.0"
+  },
+  "repository": "wooorm/nlcst-emoji-modifier",
+  "scripts": [
+    "index.js"
+  ],
+  "json": [
+    "data/emoji.json"
+  ]
+}

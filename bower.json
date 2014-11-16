@@ -1,0 +1,34 @@
+{
+  "name": "nlcst-emoji-modifier",
+  "main": "index.js",
+  "description": "Emoji in NLCST",
+  "license": "MIT",
+  "keywords": [
+    "nlcst",
+    "emoji"
+  ],
+  "dependencies": {
+    "gemoji": "^0.2.0",
+    "nlcst-to-string": "^0.1.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/wooorm/nlcst-emoji-modifier.git"
+  },
+  "authors": [
+    "Titus Wormer <tituswormer@gmail.com>"
+  ],
+  "ignore": [
+    ".*",
+    "*.log",
+    "*.md",
+    "build/",
+    "components/",
+    "coverage/",
+    "node_modules/",
+    "component.json",
+    "package.json",
+    "benchmark.js",
+    "test.js"
+  ]
+}

@@ -1,0 +1,13 @@
+language: node_js
+script: npm run-script test-travis
+node_js:
+- '0.10'
+- '0.11'
+after_script: npm install coveralls@2.10.0 && cat ./coverage/lcov.info | coveralls
+deploy:
+  provider: npm
+  email: tituswormer@gmail.com
+  api_key:
+    secure: gUQMXqCItjf8/KD4jWzoFMwuolJhebkperwyRZHpFSD3nXbLxuoTjgVCAfuCrAYkQUiP97vnRChCSTh0381YUXffQFooHAVYpuzuCP+eow3rDtLx7UjVnuMQ4n0jix2ARmE/iKiSu9hhFxClihqJ0ckllTo+CoAwGAEoMwkX6/o=
+  on:
+    repo: wooorm/nlcst-emoji-modifier
