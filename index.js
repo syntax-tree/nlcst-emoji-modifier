@@ -230,8 +230,6 @@ var emojiModifier,
     affixEmojiModifier;
 
 function attach(parser) {
-    var paragraphPlugins;
-
     if (!parser || !parser.parse) {
         throw new Error(
             '`parser` is not a valid parser for ' +
@@ -249,33 +247,8 @@ function attach(parser) {
         affixEmojiModifier = parser.constructor.modifier(mergeAffixEmoji);
     }
 
-    parser.use('tokenizeSentence', emojiModifier);
-
-    /**
-     * Adding the paragraph modifier is a bit non-standard.
-     * Reasoning is first of all, to not worry about white
-     * space nodes between sentences: at this stage,
-     * paragraph only consists of `SentenceNode`s.
-     * Additionally, adding it before all other modifiers
-     * makes sure that sentences starting with a lower case
-     * letter still get matched correctly:
-     *
-     *     Alfred! :+1: bertrand
-     *
-     * ...is correctly classified as one sentence, and:
-     *
-     *     Alfred! :+1: Bertrand
-     *
-     * ...is correctly classified as `SentenceNode`
-     * (`Alfred! :+1:`), `WhiteSpaceNode` and
-     * `SentenceNode` (`Bertrand`).
-     */
-
-    paragraphPlugins = parser.tokenizeParagraphPlugins;
-
-    if (paragraphPlugins.indexOf(affixEmojiModifier) === -1) {
-        parser.tokenizeParagraphPlugins.unshift(affixEmojiModifier);
-    }
+    parser.useFirst('tokenizeSentence', emojiModifier);
+    parser.useFirst('tokenizeParagraph', affixEmojiModifier);
 }
 
 /**
