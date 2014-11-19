@@ -871,6 +871,7 @@ describe('nlcst-emoji-modifier()', function () {
             );
         }
     );
+
     it('should classify two adjacent gemoji ' +
         '(`:+1: :-1:`) as two `EmoticonNode`s',
         function () {
@@ -955,6 +956,101 @@ describe('nlcst-emoji-modifier()', function () {
             );
         }
     );
+
+    it('should classify gemoji in words', function () {
+        var tree;
+
+        tree = parseEnglish.parse(
+            'It\'s raining :cat:s and :dog:s.'
+        );
+
+        assert(
+            JSON.stringify(tree.children[0].children[0].children) ===
+            JSON.stringify([
+                {
+                    'type': 'WordNode',
+                    'children': [
+                        {
+                            'type': 'TextNode',
+                            'value': 'It'
+                        },
+                        {
+                            'type': 'PunctuationNode',
+                            'value': '\''
+                        },
+                        {
+                            'type': 'TextNode',
+                            'value': 's'
+                        }
+                    ]
+                },
+                {
+                    'type': 'WhiteSpaceNode',
+                    'value': ' '
+                },
+                {
+                    'type': 'WordNode',
+                    'children': [
+                        {
+                            'type': 'TextNode',
+                            'value': 'raining'
+                        }
+                    ]
+                },
+                {
+                    'type': 'WhiteSpaceNode',
+                    'value': ' '
+                },
+                {
+                    'type': 'EmoticonNode',
+                    'value': ':cat:'
+                },
+                {
+                    'type': 'WordNode',
+                    'children': [
+                        {
+                            'type': 'TextNode',
+                            'value': 's'
+                        }
+                    ]
+                },
+                {
+                    'type': 'WhiteSpaceNode',
+                    'value': ' '
+                },
+                {
+                    'type': 'WordNode',
+                    'children': [
+                        {
+                            'type': 'TextNode',
+                            'value': 'and'
+                        }
+                    ]
+                },
+                {
+                    'type': 'WhiteSpaceNode',
+                    'value': ' '
+                },
+                {
+                    'type': 'EmoticonNode',
+                    'value': ':dog:'
+                },
+                {
+                    'type': 'WordNode',
+                    'children': [
+                        {
+                            'type': 'TextNode',
+                            'value': 's'
+                        }
+                    ]
+                },
+                {
+                    'type': 'PunctuationNode',
+                    'value': '.'
+                }
+            ])
+        );
+    });
 });
 
 function describeEmoji(key, information) {
