@@ -41,7 +41,7 @@ EMOTICON_NODE = 'EmoticonNode';
 
 var MAX_GEMOJI_PART_COUNT;
 
-MAX_GEMOJI_PART_COUNT = 4;
+MAX_GEMOJI_PART_COUNT = 12;
 
 /**
  * Constants for emoji.
@@ -137,7 +137,7 @@ function mergeEmoji(child, index, parent) {
         siblingIndex = index;
 
         while (siblingIndex--) {
-            if ((index - siblingIndex) >= MAX_GEMOJI_PART_COUNT) {
+            if ((index - siblingIndex) > MAX_GEMOJI_PART_COUNT) {
                 return;
             }
 
