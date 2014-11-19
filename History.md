@@ -1,5 +1,5 @@
 
-n.n.n / 2014-11-19
+0.1.0 / 2014-11-19
 ==================
 
  * Add test for emoticons embedded in words
