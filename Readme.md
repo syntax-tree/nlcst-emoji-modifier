@@ -163,6 +163,7 @@ On a MacBook Air, **parse-english** performs about 27% slower on content filled 
 ## Related
 
 - [nlcst](https://github.com/wooorm/nlcst)
+- [nlcst-emoticon-modifier](https://github.com/wooorm/nlcst-emoticon-modifier)
 - [nlcst-affix-emoticon-modifier](https://github.com/wooorm/nlcst-affix-emoticon-modifier)
 - [parse-latin](https://github.com/wooorm/parse-latin)
 - [parse-dutch](https://github.com/wooorm/parse-dutch)
