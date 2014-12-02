@@ -1,5 +1,5 @@
 
-n.n.n / 2014-12-02
+0.2.0 / 2014-12-02
 ==================
 
  * Add `build-data.js` to lint-style npm script target
