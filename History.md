@@ -1,4 +1,14 @@
 
+n.n.n / 2014-12-02
+==================
+
+ * Add `build-data.js` to lint-style npm script target
+ * Move `build-emoji.js` to `build-data.js`
+ * Add link to nlcst-emoticon-modifier in `Readme.md`
+ * Add link to personal website in `Readme.md`
+ * Update eslint, parse-english
+ * Remove affix emoticon merging functionality
+
 0.1.0 / 2014-11-19
 ==================
 
