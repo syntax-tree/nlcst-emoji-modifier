@@ -33,7 +33,7 @@
     "lint-script": "node_modules/.bin/eslint build-data.js",
     "lint-test": "node_modules/.bin/eslint test.js --env mocha",
     "lint-benchmark": "node_modules/.bin/eslint benchmark.js --global suite,set,bench",
-    "lint-style": "node_modules/.bin/jscs index.js test.js benchmark.js --reporter=inline",
+    "lint-style": "node_modules/.bin/jscs index.js test.js benchmark.js build-data.js --reporter=inline",
     "make": "npm run lint && npm run coverage",
     "benchmark": "node_modules/.bin/matcha benchmark.js",
     "build": "node build-data.js",
