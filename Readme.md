@@ -33,7 +33,7 @@ var english = new ParseEnglish();
 /* Attach the modifier. */
 modifier(english);
 
-english.parse('Who doesn’t like Gemoji? :+1: You? 💩').children[0].children;
+english.parse('Who doesn’t like Gemoji :+1:? You? 💩').children[0].children;
 ```
 
 Yields:
@@ -100,16 +100,16 @@ Yields:
         ]
       },
       {
-        "type": "PunctuationNode",
-        "value": "?"
-      },
-      {
         "type": "WhiteSpaceNode",
         "value": " "
       },
       {
         "type": "EmoticonNode",
         "value": ":+1:"
+      },
+      {
+        "type": "PunctuationNode",
+        "value": "?"
       }
     ]
   },
@@ -148,21 +148,22 @@ Yields:
 
 ## Performance
 
-On a MacBook Air, **parse-english** performs about 27% slower on content filled with (g)emoji, and a 18% slower on content without (g)emoji, when using this modifier.
+On a MacBook Air, **parse-english** performs about 27% slower on content filled with (g)emoji, and a 17% slower on content without (g)emoji, when using this modifier.
 
 ```
              parse w/ modifier
-  1,303 op/s » A paragraph (5 sentences, 100 words, 5 emoji, 5 gemoji)
-  1,653 op/s » A paragraph (5 sentences, 100 words, no emoji, no gemoji)
+  1,299 op/s » A paragraph (5 sentences, 100 words, 5 emoji, 5 gemoji)
+  1,647 op/s » A paragraph (5 sentences, 100 words, no emoji, no gemoji)
 
              parse w/o modifier
-  1,784 op/s » A paragraph (5 sentences, 100 words, 5 emoji, 5 gemoji)
-  2,038 op/s » A paragraph (5 sentences, 100 words, no emoji, no gemoji)
+  1,775 op/s » A paragraph (5 sentences, 100 words, 5 emoji, 5 gemoji)
+  1,974 op/s » A paragraph (5 sentences, 100 words, no emoji, no gemoji)
 ```
 
 ## Related
 
-- [nlcst](https://github.com/wooorm/parse-nlcst)
+- [nlcst](https://github.com/wooorm/nlcst)
+- [nlcst-affix-emoticon-modifier](https://github.com/wooorm/nlcst-affix-emoticon-modifier)
 - [parse-latin](https://github.com/wooorm/parse-latin)
 - [parse-dutch](https://github.com/wooorm/parse-dutch)
 - [parse-english](https://github.com/wooorm/parse-english)
