@@ -8,6 +8,6 @@ node_modules/
 bower.json
 component.json
 benchmark.js
-build-emoji.js
+build-data.js
 test.js
 History.md

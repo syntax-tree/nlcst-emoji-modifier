@@ -29,7 +29,7 @@
     "component.json",
     "package.json",
     "benchmark.js",
-    "build-emoji.js",
+    "build-data.js",
     "test.js"
   ]
 }
