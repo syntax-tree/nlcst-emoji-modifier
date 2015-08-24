@@ -1,4 +1,5 @@
-{
+(function(f){if(typeof exports==="object"&&typeof module!=="undefined"){module.exports=f()}else if(typeof define==="function"&&define.amd){define([],f)}else{var g;if(typeof window!=="undefined"){g=window}else if(typeof global!=="undefined"){g=global}else if(typeof self!=="undefined"){g=self}else{g=this}g.nlcstEmojiModifier = f()}})(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);var f=new Error("Cannot find module '"+o+"'");throw f.code="MODULE_NOT_FOUND",f}var l=n[o]={exports:{}};t[o][0].call(l.exports,function(e){var n=t[o][1][e];return s(n?n:e)},l,l.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
+module.exports={
   "unicode": [
     "😄",
     "😃",
@@ -1719,3 +1720,420 @@
     "small_blue_diamond"
   ]
 }
+
+},{}],2:[function(require,module,exports){
+/**
+ * @author Titus Wormer
+ * @copyright 2014-2015 Titus Wormer
+ * @license MIT
+ * @module nlcst:emoji-modifier
+ * @fileoverview Emoji in NLCST.
+ */
+
+'use strict';
+
+/* eslint-env commonjs */
+
+/*
+ * Dependencies.
+ */
+
+var toString = require('nlcst-to-string');
+var modifier = require('unist-util-modify-children');
+var emoji = require('./data/emoji.json');
+
+/*
+ * Constants: node types.
+ */
+
+var EMOTICON_NODE = 'EmoticonNode';
+
+/**
+ * Constants: magic numbers.
+ *
+ * Gemoji's are treated by a parser as multiple nodes.
+ * Because this modifier walks backwards, the first colon
+ * never matches a gemoji it would normaly walk back to
+ * the beginning (the first node). However, because the
+ * longest gemoji is tokenized as `Punctuation` (`:`),
+ * `Punctuation` (`+`), `Word` (`1`), and `Punctuation`
+ * (`:`), we can safely break when the modifier walked
+ * back more than 4 times.
+ */
+
+var MAX_GEMOJI_PART_COUNT = 12;
+
+/**
+ * Constants for emoji.
+ */
+
+var names = emoji.names;
+var unicodeKeys = emoji.unicode;
+var shortcodes = {};
+var unicodes = {};
+var index;
+
+/*
+ * Quick access to short-codes.
+ */
+
+index = -1;
+
+while (unicodeKeys[++index]) {
+    unicodes[unicodeKeys[index]] = true;
+}
+
+index = -1;
+
+while (names[++index]) {
+    shortcodes[':' + names[index] + ':'] = true;
+}
+
+/**
+ * Merge emoji and github-emoji (punctuation marks,
+ * symbols, and words) into an `EmoticonNode`.
+ *
+ * @param {CSTNode} child - Node to check.
+ * @param {number} index - Position of `child` in `parent`.
+ * @param {CSTNode} parent - Parent of `node`.
+ * @return {number?} - Either void, or the next index to
+ *   iterate over.
+ */
+function mergeEmoji(child, index, parent) {
+    var siblings = parent.children;
+    var siblingIndex;
+    var node;
+    var nodes;
+    var value;
+
+    if (child.type === 'WordNode') {
+        value = toString(child);
+
+        /*
+         * Sometimes a unicode emoji is marked as a
+         * word. Mark it as an `EmoticonNode`.
+         */
+
+        if (unicodes[value] === true) {
+            siblings[index] = {
+                'type': EMOTICON_NODE,
+                'value': value
+            };
+        } else {
+            /*
+             * Sometimes a unicode emoji is split in two.
+             * Remove the last and add its value to
+             * the first.
+             */
+
+            node = siblings[index - 1];
+
+            if (node && unicodes[toString(node) + value] === true) {
+                node.type = EMOTICON_NODE;
+                node.value = toString(node) + value;
+
+                siblings.splice(index, 1);
+
+                return index;
+            }
+        }
+    } else if (unicodes[toString(child)] === true) {
+        child.type = EMOTICON_NODE;
+    } else if (toString(child) === ':') {
+        nodes = [];
+        siblingIndex = index;
+
+        while (siblingIndex--) {
+            if ((index - siblingIndex) > MAX_GEMOJI_PART_COUNT) {
+                return;
+            }
+
+            node = siblings[siblingIndex];
+
+            if (node.children) {
+                nodes = nodes.concat(node.children.concat().reverse());
+            } else {
+                nodes.push(node);
+            }
+
+            if (toString(node) === ':') {
+                break;
+            }
+
+            if (siblingIndex === 0) {
+                return;
+            }
+        }
+
+        nodes.reverse().push(child);
+
+        value = toString(nodes);
+
+        if (shortcodes[value] !== true) {
+            return;
+        }
+
+        siblings.splice(siblingIndex, index - siblingIndex);
+
+        child.type = EMOTICON_NODE;
+        child.value = value;
+
+        return siblingIndex + 1;
+    }
+}
+
+/*
+ * Expose.
+ */
+
+module.exports = modifier(mergeEmoji);
+
+},{"./data/emoji.json":1,"nlcst-to-string":3,"unist-util-modify-children":4}],3:[function(require,module,exports){
+/**
+ * @author Titus Wormer
+ * @copyright 2014-2015 Titus Wormer
+ * @license MIT
+ * @module nlcst:to-string
+ * @fileoverview Transform an NLCST node into a string.
+ */
+
+'use strict';
+
+/* eslint-env commonjs */
+
+/**
+ * Stringify an NLCST node.
+ *
+ * @param {NLCSTNode|Array.<NLCSTNode>} node - Node to to
+ *   stringify.
+ * @return {string} - Stringified `node`.
+ */
+function nlcstToString(node) {
+    var values;
+    var length;
+    var children;
+
+    if (typeof node.value === 'string') {
+        return node.value;
+    }
+
+    children = 'length' in node ? node : node.children;
+    length = children.length;
+
+    /*
+     * Shortcut: This is pretty common, and a small performance win.
+     */
+
+    if (length === 1 && 'value' in children[0]) {
+        return children[0].value;
+    }
+
+    values = [];
+
+    while (length--) {
+        values[length] = nlcstToString(children[length]);
+    }
+
+    return values.join('');
+}
+
+/*
+ * Expose.
+ */
+
+module.exports = nlcstToString;
+
+},{}],4:[function(require,module,exports){
+/**
+ * @author Titus Wormer
+ * @copyright 2015 Titus Wormer
+ * @license MIT
+ * @module unist:util:modify-children
+ * @fileoverview Unist utility to modify direct children of a parent.
+ */
+
+'use strict';
+
+/* eslint-env commonjs */
+
+/*
+ * Dependencies.
+ */
+
+var iterate = require('array-iterate');
+
+/**
+ * Modifier for children of `parent`.
+ *
+ * @typedef modifyChildren~callback
+ * @param {Node} child - Current iteration;
+ * @param {number} index - Position of `child` in `parent`;
+ * @param {Node} parent - Parent node of `child`.
+ * @return {number?} - Next position to iterate.
+ */
+
+/**
+ * Function invoking a bound `fn` for each child of `parent`.
+ *
+ * @typedef modifyChildren~modifier
+ * @param {Node} parent - Node with children.
+ * @throws {Error} - When not given a parent node.
+ */
+
+/**
+ * Pass the context as the third argument to `callback`.
+ *
+ * @param {modifyChildren~callback} callback - Function to wrap.
+ * @return {function(Node, number): number?} - Intermediate
+ *   version partially aplied version of
+ *   `modifyChildren~modifier`.
+ */
+function wrapperFactory(callback) {
+    return function (value, index) {
+        return callback(value, index, this);
+    };
+}
+
+/**
+ * Turns `callback` into a ``iterator'' accepting a parent.
+ *
+ * see ``array-iterate'' for more info.
+ *
+ * @param {modifyChildren~callback} callback - Function to wrap.
+ * @return {modifyChildren~modifier}
+ */
+function iteratorFactory(callback) {
+    return function (parent) {
+        var children = parent && parent.children;
+
+        if (!children) {
+            throw new Error('Missing children in `parent` for `modifier`');
+        }
+
+        return iterate(children, callback, parent);
+    };
+}
+
+/**
+ * Turns `callback` into a child-modifier accepting a parent.
+ *
+ * See `array-iterate` for more info.
+ *
+ * @param {modifyChildren~callback} callback - Function to wrap.
+ * @return {modifyChildren~modifier} - Wrapped `fn`.
+ */
+function modifierFactory(callback) {
+    return iteratorFactory(wrapperFactory(callback));
+}
+
+/*
+ * Expose.
+ */
+
+module.exports = modifierFactory;
+
+},{"array-iterate":5}],5:[function(require,module,exports){
+/**
+ * @author Titus Wormer
+ * @copyright 2015 Titus Wormer
+ * @license MIT
+ * @module array-iterate
+ * @fileoverview `forEach` with the possibility to change the next position.
+ */
+
+'use strict';
+
+/* eslint-env commonjs */
+
+/*
+ * Methods.
+ */
+
+var has = Object.prototype.hasOwnProperty;
+
+/**
+ * Callback given to `iterate`.
+ *
+ * @callback iterate~callback
+ * @this {*} - `context`, when given to `iterate`.
+ * @param {*} value - Current iteration.
+ * @param {number} index - Position of `value` in `values`.
+ * @param {{length: number}} values - Currently iterated over.
+ * @return {number?} - Position to go to next.
+ */
+
+/**
+ * `Array#forEach()` with the possibility to change
+ * the next position.
+ *
+ * @param {{length: number}} values - Values.
+ * @param {arrayIterate~callback} callback - Callback given to `iterate`.
+ * @param {*?} [context] - Context object to use when invoking `callback`.
+ */
+function iterate(values, callback, context) {
+    var index = -1;
+    var result;
+
+    if (!values) {
+        throw new Error(
+            'TypeError: Iterate requires that |this| ' +
+            'not be ' + values
+        );
+    }
+
+    if (!has.call(values, 'length')) {
+        throw new Error(
+            'TypeError: Iterate requires that |this| ' +
+            'has a `length`'
+        );
+    }
+
+    if (typeof callback !== 'function') {
+        throw new Error(
+            'TypeError: callback must be a function'
+        );
+    }
+
+    /*
+     * The length might change, so we do not cache it.
+     */
+
+    while (++index < values.length) {
+        /*
+         * Skip missing values.
+         */
+
+        if (!(index in values)) {
+            continue;
+        }
+
+        result = callback.call(context, values[index], index, values);
+
+        /*
+         * If `callback` returns a `number`, move `index` over to
+         * `number`.
+         */
+
+        if (typeof result === 'number') {
+            /*
+             * Make sure that negative numbers do not
+             * break the loop.
+             */
+
+            if (result < 0) {
+                index = 0;
+            }
+
+            index = result - 1;
+        }
+    }
+}
+
+/*
+ * Expose.
+ */
+
+module.exports = iterate;
+
+},{}]},{},[2])(2)
+});

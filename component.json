@@ -8,14 +8,11 @@
     "emoji"
   ],
   "dependencies": {
-    "wooorm/gemoji": "^0.2.0",
-    "wooorm/nlcst-to-string": "^0.1.0"
+    "wooorm/nlcst-to-string": "^1.0.0",
+    "wooorm/unist-util-modify-children": "^1.0.0"
   },
   "repository": "wooorm/nlcst-emoji-modifier",
   "scripts": [
     "index.js"
-  ],
-  "json": [
-    "data/emoji.json"
   ]
 }

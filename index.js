@@ -1,30 +1,28 @@
+/**
+ * @author Titus Wormer
+ * @copyright 2014-2015 Titus Wormer
+ * @license MIT
+ * @module nlcst:emoji-modifier
+ * @fileoverview Emoji in NLCST.
+ */
+
 'use strict';
 
-/**
+/* eslint-env commonjs */
+
+/*
  * Dependencies.
  */
 
-var emoji,
-    nlcstToString;
+var toString = require('nlcst-to-string');
+var modifier = require('unist-util-modify-children');
+var emoji = require('./data/emoji.json');
 
-emoji = require('./data/emoji.json');
-nlcstToString = require('nlcst-to-string');
-
-/**
- * Cached methods.
- */
-
-var has;
-
-has = Object.prototype.hasOwnProperty;
-
-/**
+/*
  * Constants: node types.
  */
 
-var EMOTICON_NODE;
-
-EMOTICON_NODE = 'EmoticonNode';
+var EMOTICON_NODE = 'EmoticonNode';
 
 /**
  * Constants: magic numbers.
@@ -39,36 +37,27 @@ EMOTICON_NODE = 'EmoticonNode';
  * back more than 4 times.
  */
 
-var MAX_GEMOJI_PART_COUNT;
-
-MAX_GEMOJI_PART_COUNT = 12;
+var MAX_GEMOJI_PART_COUNT = 12;
 
 /**
  * Constants for emoji.
  */
 
-var index,
-    names,
-    shortcodes,
-    unicodes,
-    unicodeKeys;
+var names = emoji.names;
+var unicodeKeys = emoji.unicode;
+var shortcodes = {};
+var unicodes = {};
+var index;
 
-names = emoji.names;
-unicodeKeys = emoji.unicode;
-
-/**
+/*
  * Quick access to short-codes.
  */
-
-unicodes = {};
 
 index = -1;
 
 while (unicodeKeys[++index]) {
     unicodes[unicodeKeys[index]] = true;
 }
-
-shortcodes = {};
 
 index = -1;
 
@@ -80,37 +69,34 @@ while (names[++index]) {
  * Merge emoji and github-emoji (punctuation marks,
  * symbols, and words) into an `EmoticonNode`.
  *
- * @param {CSTNode} child
- * @param {number} index
- * @param {CSTNode} parent
- * @return {undefined|number} - Either void, or the
- *   next index to iterate over.
+ * @param {CSTNode} child - Node to check.
+ * @param {number} index - Position of `child` in `parent`.
+ * @param {CSTNode} parent - Parent of `node`.
+ * @return {number?} - Either void, or the next index to
+ *   iterate over.
  */
-
 function mergeEmoji(child, index, parent) {
-    var siblings,
-        siblingIndex,
-        node,
-        nodes,
-        value;
-
-    siblings = parent.children;
+    var siblings = parent.children;
+    var siblingIndex;
+    var node;
+    var nodes;
+    var value;
 
     if (child.type === 'WordNode') {
-        value = nlcstToString(child);
+        value = toString(child);
 
-        /**
+        /*
          * Sometimes a unicode emoji is marked as a
          * word. Mark it as an `EmoticonNode`.
          */
 
-        if (has.call(unicodes, value)) {
+        if (unicodes[value] === true) {
             siblings[index] = {
                 'type': EMOTICON_NODE,
                 'value': value
             };
         } else {
-            /**
+            /*
              * Sometimes a unicode emoji is split in two.
              * Remove the last and add its value to
              * the first.
@@ -118,21 +104,18 @@ function mergeEmoji(child, index, parent) {
 
             node = siblings[index - 1];
 
-            if (
-                node &&
-                has.call(unicodes, nlcstToString(node) + value)
-            ) {
+            if (node && unicodes[toString(node) + value] === true) {
                 node.type = EMOTICON_NODE;
-                node.value = nlcstToString(node) + value;
+                node.value = toString(node) + value;
 
                 siblings.splice(index, 1);
 
                 return index;
             }
         }
-    } else if (has.call(unicodes, nlcstToString(child))) {
+    } else if (unicodes[toString(child)] === true) {
         child.type = EMOTICON_NODE;
-    } else if (nlcstToString(child) === ':') {
+    } else if (toString(child) === ':') {
         nodes = [];
         siblingIndex = index;
 
@@ -149,7 +132,7 @@ function mergeEmoji(child, index, parent) {
                 nodes.push(node);
             }
 
-            if (nlcstToString(node) === ':') {
+            if (toString(node) === ':') {
                 break;
             }
 
@@ -160,11 +143,9 @@ function mergeEmoji(child, index, parent) {
 
         nodes.reverse().push(child);
 
-        value = nlcstToString({
-            'children': nodes
-        });
+        value = toString(nodes);
 
-        if (!has.call(shortcodes, value)) {
+        if (shortcodes[value] !== true) {
             return;
         }
 
@@ -177,30 +158,8 @@ function mergeEmoji(child, index, parent) {
     }
 }
 
-var emojiModifier;
-
-function attach(parser) {
-    if (!parser || !parser.parse) {
-        throw new Error(
-            '`parser` is not a valid parser for ' +
-            '`attach(parser)`. Make sure something ' +
-            'like `parse-latin` is passed.'
-        );
-    }
-
-    /**
-     * Make sure to not re-attach the modifier.
-     */
-
-    if (!emojiModifier) {
-        emojiModifier = parser.constructor.modifier(mergeEmoji);
-    }
-
-    parser.useFirst('tokenizeSentence', emojiModifier);
-}
-
-/**
- * Expose `attach`.
+/*
+ * Expose.
  */
 
-module.exports = attach;
+module.exports = modifier(mergeEmoji);

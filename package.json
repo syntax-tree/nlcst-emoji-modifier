@@ -8,35 +8,47 @@
     "emoji"
   ],
   "dependencies": {
-    "gemoji": "^0.2.0",
-    "nlcst-to-string": "^0.1.0"
+    "nlcst-to-string": "^1.0.0",
+    "unist-util-modify-children": "^1.0.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/wooorm/nlcst-emoji-modifier.git"
-  },
+  "repository": "wooorm/nlcst-emoji-modifier",
   "author": "Titus Wormer <tituswormer@gmail.com>",
+  "files": [
+    "data/emoji.json",
+    "index.js"
+  ],
   "devDependencies": {
-    "eslint": "^0.10.0",
+    "browserify": "^11.0.0",
+    "eslint": "^1.0.0",
+    "esmangle": "^1.0.0",
+    "gemoji": "^1.0.0",
     "istanbul": "^0.3.0",
-    "jscs": "^1.0.0",
-    "matcha": "^0.6.0",
+    "jscs": "^2.0.0",
+    "jscs-jsdoc": "^1.0.0",
+    "mdast": "^1.0.0",
+    "mdast-comment-config": "^1.0.0",
+    "mdast-github": "^1.0.0",
+    "mdast-lint": "^1.0.0",
+    "mdast-slug": "^1.0.0",
+    "mdast-validate-links": "^1.0.0",
     "mocha": "^2.0.0",
-    "parse-english": "^0.4.0"
+    "parse-english": "^1.0.0",
+    "retext": "^1.0.0-rc.3",
+    "unist-util-visit": "^1.0.0"
   },
   "scripts": {
-    "test": "node_modules/.bin/_mocha --reporter spec --check-leaks -u exports test.js",
-    "test-travis": "node_modules/.bin/istanbul cover node_modules/.bin/_mocha --report lcovonly -- --reporter spec --check-leaks -u exports test.js",
-    "coverage": "node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- -- test.js",
-    "lint": "npm run lint-api && npm run lint-test && npm run lint-benchmark && npm run lint-script && npm run lint-style",
-    "lint-api": "node_modules/.bin/eslint index.js --rule 'consistent-return: false'",
-    "lint-script": "node_modules/.bin/eslint build-data.js",
-    "lint-test": "node_modules/.bin/eslint test.js --env mocha",
-    "lint-benchmark": "node_modules/.bin/eslint benchmark.js --global suite,set,bench",
-    "lint-style": "node_modules/.bin/jscs index.js test.js benchmark.js build-data.js --reporter=inline",
-    "make": "npm run lint && npm run coverage",
-    "benchmark": "node_modules/.bin/matcha benchmark.js",
-    "build": "node build-data.js",
-    "prepublish": "npm run build"
+    "test-api": "mocha --check-leaks test/index.js",
+    "test-coverage": "istanbul cover _mocha -- test/index.js",
+    "test-travis": "npm run test-coverage",
+    "test": "npm run test-api",
+    "lint-api": "eslint .",
+    "lint-style": "jscs --reporter inline .",
+    "lint": "npm run lint-api && npm run lint-style",
+    "make": "npm run lint && npm run test-coverage",
+    "bundle": "browserify index.js --no-builtins -s nlcstEmojiModifier > nlcst-emoji-modifier.js",
+    "postbundle": "esmangle nlcst-emoji-modifier.js > nlcst-emoji-modifier.min.js",
+    "build-data": "node script/build-data.js",
+    "build-md": "mdast . --quiet",
+    "build": "npm run build-data && npm run bundle && npm run build-md"
   }
 }
