@@ -13,8 +13,8 @@
               "position": {
                 "start": {
                   "line": 1,
-                  "column": 5,
-                  "offset": 4
+                  "column": 1,
+                  "offset": 0
                 },
                 "end": {
                   "line": 1,

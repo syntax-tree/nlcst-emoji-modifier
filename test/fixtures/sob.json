@@ -209,8 +209,8 @@
               "position": {
                 "start": {
                   "line": 1,
-                  "column": 24,
-                  "offset": 23
+                  "column": 20,
+                  "offset": 19
                 },
                 "end": {
                   "line": 1,

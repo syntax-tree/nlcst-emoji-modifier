@@ -15,9 +15,7 @@
  */
 
 var assert = require('assert');
-var retext = require('retext');
 var english = require('parse-english');
-var visit = require('unist-util-visit');
 var gemoji = require('gemoji');
 var emoji = require('..');
 
@@ -47,31 +45,48 @@ var equal = assert.strictEqual;
 var dequal = assert.deepEqual;
 
 /*
- * processor.
+ * Processors.
  */
 
-var processor = retext(english).use(function () {
-    return function (cst) {
-        visit(cst, 'SentenceNode', emoji);
-    }
+var position = english()
+var noPosition = english({
+    'position': false
 });
 
-/**
- * Short-cut to access the CST.
- */
-function process(fixture) {
-    var cst;
+position.useFirst('tokenizeSentence', emoji);
+noPosition.useFirst('tokenizeSentence', emoji);
 
-    processor.process(fixture, function (err, file) {
-        /* istanbul ignore next */
-        if (err) {
-            throw err;
+/**
+ * Clone `object` but omit positional information.
+ *
+ * @param {Object|Array} object - Object to clone.
+ * @return {Object|Array} - `object`, without positional
+ *   information.
+ */
+function clean(object) {
+    var clone = 'length' in object ? [] : {};
+    var key;
+    var value;
+
+    for (key in object) {
+        value = object[key];
+
+        if (key === 'position') {
+            continue;
         }
 
-        cst = file.namespace('retext').cst;
-    });
+        clone[key] = typeof object[key] === 'object' ? clean(value) : value;
+    }
 
-    return cst;
+    return clone;
+}
+
+/**
+ * Short-cut to assert both positional and non-positional.
+ */
+function check(fixture, node) {
+    dequal(position.parse(fixture), node);
+    dequal(noPosition.parse(fixture), clean(node));
 }
 
 /*
@@ -86,19 +101,19 @@ describe('nlcst-emoji-modifier()', function () {
     });
 
     it('should classify gemoji (`:sob:`)', function () {
-        dequal(process('This makes me feel :sob:.'), sob);
+        check('This makes me feel :sob:.', sob);
     });
 
     it('should NOT classify invalid gemoji (`:trololol:`)', function () {
-        dequal(process('trololol: This makes me feel :trololol:.'), trololol);
+        check('trololol: This makes me feel :trololol:.', trololol);
     });
 
     it('should NOT classify invalid gemoji (`L.L. Smith:`)', function () {
-        dequal(process('Hello L.L. Smith:\n'), smith);
+        check('Hello L.L. Smith:\n', smith);
     });
 
     it('should classify unicode emoji (`\ud83d\ude2d`)', function () {
-        dequal(process('This makes me feel \ud83d\ude2d.'), cry);
+        check('This makes me feel \ud83d\ude2d.', cry);
     });
 
     /**
@@ -109,7 +124,7 @@ describe('nlcst-emoji-modifier()', function () {
      */
 
     it('should classify emoji with word characters', function () {
-        dequal(process('This makes me feel \u263a\ufe0f.'), word);
+        check('This makes me feel \u263a\ufe0f.', word);
     });
 
     /**
@@ -120,28 +135,27 @@ describe('nlcst-emoji-modifier()', function () {
      */
 
     it('should classify emoji with word only characters', function () {
-        dequal(process('This makes me feel \u0031\ufe0f\u20e3.'), wordOnly);
+        check('This makes me feel \u0031\ufe0f\u20e3.', wordOnly);
     });
 
     it('should classify adjacent emoji', function () {
-        dequal(process('This makes me feel \ud83d\udc4d \ud83d\udc4e.'), adjacentEmoji);
+        check('This makes me feel \ud83d\udc4d \ud83d\udc4e.', adjacentEmoji);
     });
 
     it('should classify adjacent gemoji', function () {
-        dequal(process('This makes me feel :+1: :-1:.'), adjacentGemoji);
+        check('This makes me feel :+1: :-1:.', adjacentGemoji);
     });
 
     it('should classify initial emoji', function () {
-        dequal(process('\ud83d\udca4 I\'m going to bed.'), initialEmoji);
+        check('\ud83d\udca4 I\'m going to bed.', initialEmoji);
     });
 
     it('should classify initial gemoji', function () {
-        dequal(process(':zzz: I\'m going to bed.'), initialGemoji);
+        check(':zzz: I\'m going to bed.', initialGemoji);
     });
 
     it('should classify gemoji in words', function () {
-        // console.log(JSON.stringify(process('It\'s raining :cat:s and :dog:s.'), 0, 2));
-        dequal(process('It\'s raining :cat:s and :dog:s.'), inWords);
+        check('It\'s raining :cat:s and :dog:s.', inWords);
     });
 });
 
@@ -153,7 +167,7 @@ Object.keys(gemoji.name).forEach(function (key) {
         [shortcode, emoji].forEach(function (value) {
             it('should classify `' + value + '`',
                 function () {
-                    var node = process(baseSentence + value + fullStop);
+                    var node = position.parse(baseSentence + value + fullStop);
                     var emoticon = node.children[0].children[0].children[14];
 
                     equal(emoticon.type, 'EmoticonNode');

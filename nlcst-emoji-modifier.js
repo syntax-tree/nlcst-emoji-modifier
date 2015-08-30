@@ -1815,10 +1815,16 @@ function mergeEmoji(child, index, parent) {
          */
 
         if (unicodes[value] === true) {
-            siblings[index] = {
+            node = {
                 'type': EMOTICON_NODE,
                 'value': value
             };
+
+            if (child.position) {
+                node.position = child.position;
+            }
+
+            siblings[index] = node;
         } else {
             /*
              * Sometimes a unicode emoji is split in two.
@@ -1831,6 +1837,10 @@ function mergeEmoji(child, index, parent) {
             if (node && unicodes[toString(node) + value] === true) {
                 node.type = EMOTICON_NODE;
                 node.value = toString(node) + value;
+
+                if (child.position && node.position) {
+                    node.position.end = child.position.end;
+                }
 
                 siblings.splice(index, 1);
 
@@ -1877,6 +1887,10 @@ function mergeEmoji(child, index, parent) {
 
         child.type = EMOTICON_NODE;
         child.value = value;
+
+        if (child.position && node.position) {
+            child.position.start = node.position.start;
+        }
 
         return siblingIndex + 1;
     }

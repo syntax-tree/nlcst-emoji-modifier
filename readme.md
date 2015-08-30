@@ -25,122 +25,36 @@ module, [uncompressed](nlcst-emoji-modifier.js) and [compressed](nlcst-emoji-mod
 
 ```javascript
 var modifier = require('nlcst-emoji-modifier');
-var english = require('parse-english');
-var sentence = english().parse('Who doesn’t like Gemoji :+1:? You? 💩').children[0].children[0];
+var inspect = require('unist-util-inspect');
+var english = require('parse-english')();
 
-modifyEmoji(sentence);
+english.useFirst('tokenizeSentence', modifier);
 
-console.log(sentence);
+console.log(inspect(english.parse('It\'s raining :cat:s and :dog:s.')));
 ```
 
 Yields:
 
-```json
-[
-  {
-    "type": "SentenceNode",
-    "children": [
-      {
-        "type": "WordNode",
-        "children": [
-          {
-            "type": "TextNode",
-            "value": "Who"
-          }
-        ]
-      },
-      {
-        "type": "WhiteSpaceNode",
-        "value": " "
-      },
-      {
-        "type": "WordNode",
-        "children": [
-          {
-            "type": "TextNode",
-            "value": "doesn"
-          },
-          {
-            "type": "PunctuationNode",
-            "value": "’"
-          },
-          {
-            "type": "TextNode",
-            "value": "t"
-          }
-        ]
-      },
-      {
-        "type": "WhiteSpaceNode",
-        "value": " "
-      },
-      {
-        "type": "WordNode",
-        "children": [
-          {
-            "type": "TextNode",
-            "value": "like"
-          }
-        ]
-      },
-      {
-        "type": "WhiteSpaceNode",
-        "value": " "
-      },
-      {
-        "type": "WordNode",
-        "children": [
-          {
-            "type": "TextNode",
-            "value": "Gemoji"
-          }
-        ]
-      },
-      {
-        "type": "WhiteSpaceNode",
-        "value": " "
-      },
-      {
-        "type": "EmoticonNode",
-        "value": ":+1:"
-      },
-      {
-        "type": "PunctuationNode",
-        "value": "?"
-      }
-    ]
-  },
-  {
-    "type": "WhiteSpaceNode",
-    "value": " "
-  },
-  {
-    "type": "SentenceNode",
-    "children": [
-      {
-        "type": "WordNode",
-        "children": [
-          {
-            "type": "TextNode",
-            "value": "You"
-          }
-        ]
-      },
-      {
-        "type": "PunctuationNode",
-        "value": "?"
-      },
-      {
-        "type": "WhiteSpaceNode",
-        "value": " "
-      },
-      {
-        "type": "EmoticonNode",
-        "value": "💩"
-      }
-    ]
-  }
-]
+```text
+RootNode[1]
+└─ ParagraphNode[1]
+   └─ SentenceNode[10]
+      ├─ WordNode[1]
+      │  └─ TextNode: 'Who'
+      ├─ WhiteSpaceNode: ' '
+      ├─ WordNode[3]
+      │  ├─ TextNode: 'doesn'
+      │  ├─ PunctuationNode: '’'
+      │  └─ TextNode: 't'
+      ├─ WhiteSpaceNode: ' '
+      ├─ WordNode[1]
+      │  └─ TextNode: 'like'
+      ├─ WhiteSpaceNode: ' '
+      ├─ WordNode[1]
+      │  └─ TextNode: 'Gemoji'
+      ├─ WhiteSpaceNode: ' '
+      ├─ EmoticonNode: ':+1:'
+      └─ PunctuationNode: '?'
 ```
 
 ## API
