@@ -2,6 +2,11 @@
 
 <!--lint disable no-multiple-toplevel-headings-->
 
+1.0.1 / 2015-08-30
+==================
+
+*   Add support for positional information ([0d32ee1](https://github.com/wooorm/nlcst-emoji-modifier/commit/0d32ee1))
+
 1.0.0 / 2015-08-24
 ==================
 
