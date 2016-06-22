@@ -81,6 +81,15 @@ function mergeEmoji(child, index, parent) {
     var node;
     var nodes;
     var value;
+    var subvalue;
+    var left;
+    var right;
+    var leftMatch;
+    var rightMatch;
+    var start;
+    var pos;
+    var end;
+    var replace;
 
     if (child.type === 'WordNode') {
         value = toString(child);
@@ -125,9 +134,38 @@ function mergeEmoji(child, index, parent) {
         }
     } else if (unicodes[toString(child)] === true) {
         child.type = EMOTICON_NODE;
-    } else if (toString(child) === ':') {
+    } else if (toString(child).charAt(0) === ':') {
         nodes = [];
         siblingIndex = index;
+        subvalue = toString(child);
+        left = right = leftMatch = rightMatch = null;
+
+        if (subvalue.length === 1) {
+            rightMatch = child;
+        } else {
+            end = child.position && child.position.end;
+            start = end && child.position.start;
+            pos = end && {
+                line: start.line,
+                column: start.column + 1,
+                offset: start.offset + 1
+            };
+
+            rightMatch = {
+                type: 'PunctuationNode',
+                value: ':'
+            };
+
+            right = {
+                type: 'PunctuationNode',
+                value: subvalue.slice(1)
+            };
+
+            if (end) {
+                rightMatch.position = { start: start, end: pos };
+                right.position = { start: pos, end: end };
+            }
+        }
 
         while (siblingIndex--) {
             if ((index - siblingIndex) > MAX_GEMOJI_PART_COUNT) {
@@ -136,14 +174,17 @@ function mergeEmoji(child, index, parent) {
 
             node = siblings[siblingIndex];
 
+            subvalue = toString(node);
+
+            if (subvalue.charAt(subvalue.length - 1) === ':') {
+                leftMatch = node;
+                break;
+            }
+
             if (node.children) {
                 nodes = nodes.concat(node.children.concat().reverse());
             } else {
                 nodes.push(node);
-            }
-
-            if (toString(node) === ':') {
-                break;
             }
 
             if (siblingIndex === 0) {
@@ -151,7 +192,39 @@ function mergeEmoji(child, index, parent) {
             }
         }
 
-        nodes.reverse().push(child);
+        if (!leftMatch) {
+            return;
+        }
+
+        subvalue = toString(leftMatch);
+
+        if (subvalue.length !== 1) {
+            end = leftMatch.position && leftMatch.position.end;
+            start = end && leftMatch.position.start;
+            pos = end && {
+                line: end.line,
+                column: end.column - 1,
+                offset: end.offset - 1
+            };
+
+            left = {
+                type: 'PunctuationNode',
+                value: subvalue.slice(0, -1)
+            };
+
+            leftMatch = {
+                type: 'PunctuationNode',
+                value: ':'
+            };
+
+            if (end) {
+                left.position = { start: start, end: pos };
+                leftMatch.position = { start: pos, end: end };
+            }
+        }
+
+        nodes.push(leftMatch);
+        nodes.reverse().push(rightMatch);
 
         value = toString(nodes);
 
@@ -159,16 +232,35 @@ function mergeEmoji(child, index, parent) {
             return;
         }
 
-        siblings.splice(siblingIndex, index - siblingIndex);
+        replace = [
+            siblingIndex,
+            index - siblingIndex + 1
+        ];
+
+        if (left) {
+            replace.push(left);
+        }
 
         child.type = EMOTICON_NODE;
         child.value = value;
 
-        if (child.position && node.position) {
-            child.position.start = node.position.start;
+        if (child.position && leftMatch.position) {
+            child.position.start = leftMatch.position.start;
         }
 
-        return siblingIndex + 1;
+        if (child.position && rightMatch.position) {
+            child.position.end = rightMatch.position.end;
+        }
+
+        replace.push(child);
+
+        if (right) {
+            replace.push(right);
+        }
+
+        [].splice.apply(siblings, replace);
+
+        return siblingIndex + 3;
     }
 }
 

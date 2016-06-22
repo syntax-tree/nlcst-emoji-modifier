@@ -24,6 +24,10 @@ var emoji = require('..');
  */
 
 var sob = require('./fixtures/sob');
+var sobsob = require('./fixtures/sobsob');
+var left = require('./fixtures/colons-left');
+var right = require('./fixtures/colons-right');
+var both = require('./fixtures/colons-both');
 var trololol = require('./fixtures/trololol');
 var smith = require('./fixtures/smith');
 var cry = require('./fixtures/cry');
@@ -102,6 +106,22 @@ describe('nlcst-emoji-modifier()', function () {
 
     it('should classify gemoji (`:sob:`)', function () {
         check('This makes me feel :sob:.', sob);
+    });
+
+    it('should classify two adjacent gemoji (`:sob::sob:`)', function () {
+        check('It\'s raining :sob::sob:', sobsob);
+    });
+
+    it('should support extra colons (`::sob::`)', function () {
+        check('It\'s raining ::cat::dog::s', both);
+    });
+
+    it('should support extra left colons (`::sob:`)', function () {
+        check('It\'s raining :::cat:s', left);
+    });
+
+    it('should support extra right colons (`:sob::`)', function () {
+        check('It\'s raining :dog:::s', right);
     });
 
     it('should NOT classify invalid gemoji (`:trololol:`)', function () {
