@@ -2,6 +2,11 @@
 
 <!--lint disable no-multiple-toplevel-headings-->
 
+1.0.2 / 2016-06-22
+==================
+
+*   Fix adjacent gemoji ([7f9a161](https://github.com/wooorm/nlcst-emoji-modifier/commit/7f9a161))
+
 1.0.1 / 2015-08-30
 ==================
 
