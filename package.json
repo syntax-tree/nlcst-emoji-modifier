@@ -8,7 +8,7 @@
     "emoji"
   ],
   "dependencies": {
-    "nlcst-to-string": "^1.0.0",
+    "nlcst-to-string": "^2.0.0",
     "unist-util-modify-children": "^1.0.0"
   },
   "repository": "wooorm/nlcst-emoji-modifier",
@@ -18,36 +18,28 @@
     "index.js"
   ],
   "devDependencies": {
-    "browserify": "^11.0.0",
+    "browserify": "^13.0.0",
     "esmangle": "^1.0.0",
-    "gemoji": "^1.0.0",
+    "gemoji": "^2.0.0",
     "is-hidden": "^1.1.0",
-    "mdast": "^1.0.0",
-    "mdast-comment-config": "^1.0.0",
-    "mdast-github": "^1.0.0",
-    "mdast-lint": "^1.0.0",
-    "mdast-slug": "^1.0.0",
-    "mdast-validate-links": "^1.0.0",
     "negate": "^1.0.0",
-    "nlcst-to-string": "^1.1.0",
     "nyc": "^9.0.1",
-    "parse-english": "^2.0.0",
-    "retext": "^1.0.0-rc.4",
+    "parse-english": "^3.0.0",
+    "remark-cli": "^2.1.0",
+    "remark-preset-wooorm": "^1.0.0",
     "tape": "^4.6.2",
     "unist-util-remove-position": "^1.1.0",
     "xo": "^0.17.1"
   },
   "scripts": {
+    "build-md": "remark . --quiet --frail --output",
+    "build-bundle": "browserify index.js --bare -s nlcstEmojiModifier > nlcst-emoji-modifier.js",
+    "build-mangle": "esmangle < nlcst-emoji-modifier.js > nlcst-emoji-modifier.min.js",
+    "build": "npm run build-md && npm run build-bundle && npm run build-mangle",
+    "lint": "xo",
     "test-api": "node test",
     "test-coverage": "nyc --reporter lcov tape test/index.js",
-    "test": "npm run test-api",
-    "lint": "xo",
-    "make": "npm run lint && npm run test-coverage",
-    "bundle": "browserify index.js --no-builtins -s nlcstEmojiModifier > nlcst-emoji-modifier.js",
-    "postbundle": "esmangle nlcst-emoji-modifier.js > nlcst-emoji-modifier.min.js",
-    "build-data": "node script/build-data.js",
-    "build-md": "mdast . --quiet",
-    "build": "npm run build-data && npm run bundle && npm run build-md"
+    "test": "npm run build && npm run lint && npm run test-coverage"
   },
   "nyc": {
     "check-coverage": true,
@@ -64,5 +56,8 @@
     "ignore": [
       "nlcst-emoji-modifier.js"
     ]
+  },
+  "remarkConfig": {
+    "presets": "wooorm"
   }
 }
