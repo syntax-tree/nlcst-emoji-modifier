@@ -8,6 +8,8 @@
     "emoji"
   ],
   "dependencies": {
+    "gemoji": "^2.0.1",
+    "has": "^1.0.1",
     "nlcst-to-string": "^2.0.0",
     "unist-util-modify-children": "^1.0.0"
   },
@@ -20,7 +22,6 @@
   "devDependencies": {
     "browserify": "^13.0.0",
     "esmangle": "^1.0.0",
-    "gemoji": "^2.0.0",
     "is-hidden": "^1.1.0",
     "negate": "^1.0.0",
     "nyc": "^9.0.1",

@@ -1,9 +1,10 @@
 'use strict';
 
 /* Dependencies. */
+var has = require('has');
 var toString = require('nlcst-to-string');
 var modifier = require('unist-util-modify-children');
-var emoji = require('./data/emoji.json');
+var gemoji = require('gemoji');
 
 /* Expose. */
 module.exports = modifier(mergeEmoji);
@@ -24,22 +25,13 @@ var EMOTICON_NODE = 'EmoticonNode';
 var MAX_GEMOJI_PART_COUNT = 12;
 
 /* Constants. */
-var names = emoji.names;
-var unicodeKeys = emoji.unicode;
-var shortcodes = {};
-var unicodes = {};
+var shortcodes = [];
+var unicodes = gemoji.unicode;
+var byName = gemoji.name;
+var key;
 
-/* Quick access to short-codes. */
-var index = -1;
-
-while (unicodeKeys[++index]) {
-  unicodes[unicodeKeys[index]] = true;
-}
-
-index = -1;
-
-while (names[++index]) {
-  shortcodes[':' + names[index] + ':'] = true;
+for (key in byName) {
+  shortcodes.push(':' + key + ':');
 }
 
 /* Merge emoji and github-emoji (punctuation marks,
@@ -65,7 +57,7 @@ function mergeEmoji(child, index, parent) {
 
     /* Sometimes a unicode emoji is marked as a
      * word. Mark it as an `EmoticonNode`. */
-    if (unicodes[value] === true) {
+    if (has(unicodes, value)) {
       node = {type: EMOTICON_NODE, value: value};
 
       if (child.position) {
@@ -79,7 +71,7 @@ function mergeEmoji(child, index, parent) {
        * the first. */
       node = siblings[index - 1];
 
-      if (node && unicodes[toString(node) + value] === true) {
+      if (node && has(unicodes, toString(node) + value)) {
         node.type = EMOTICON_NODE;
         node.value = toString(node) + value;
 
@@ -92,7 +84,7 @@ function mergeEmoji(child, index, parent) {
         return index;
       }
     }
-  } else if (unicodes[toString(child)] === true) {
+  } else if (has(unicodes, toString(child))) {
     child.type = EMOTICON_NODE;
   } else if (toString(child).charAt(0) === ':') {
     nodes = [];
@@ -188,7 +180,7 @@ function mergeEmoji(child, index, parent) {
 
     value = toString(nodes);
 
-    if (shortcodes[value] !== true) {
+    if (shortcodes.indexOf(value) === -1) {
       return;
     }
 
