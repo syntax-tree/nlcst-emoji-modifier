@@ -22,7 +22,6 @@
     "esmangle": "^1.0.0",
     "gemoji": "^1.0.0",
     "is-hidden": "^1.1.0",
-    "istanbul": "^0.3.0",
     "mdast": "^1.0.0",
     "mdast-comment-config": "^1.0.0",
     "mdast-github": "^1.0.0",
@@ -31,6 +30,7 @@
     "mdast-validate-links": "^1.0.0",
     "negate": "^1.0.0",
     "nlcst-to-string": "^1.1.0",
+    "nyc": "^9.0.1",
     "parse-english": "^2.0.0",
     "retext": "^1.0.0-rc.4",
     "tape": "^4.6.2",
@@ -39,8 +39,7 @@
   },
   "scripts": {
     "test-api": "node test",
-    "test-coverage": "istanbul cover tape test/index.js",
-    "test-travis": "npm run test-coverage",
+    "test-coverage": "nyc --reporter lcov tape test/index.js",
     "test": "npm run test-api",
     "lint": "xo",
     "make": "npm run lint && npm run test-coverage",
@@ -49,6 +48,12 @@
     "build-data": "node script/build-data.js",
     "build-md": "mdast . --quiet",
     "build": "npm run build-data && npm run bundle && npm run build-md"
+  },
+  "nyc": {
+    "check-coverage": true,
+    "lines": 100,
+    "functions": 100,
+    "branches": 100
   },
   "xo": {
     "space": true,
