@@ -24,7 +24,7 @@
     "esmangle": "^1.0.0",
     "is-hidden": "^1.1.0",
     "negate": "^1.0.0",
-    "nyc": "^9.0.1",
+    "nyc": "^10.0.0",
     "parse-english": "^3.0.0",
     "remark-cli": "^2.1.0",
     "remark-preset-wooorm": "^1.0.0",
