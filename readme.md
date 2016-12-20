@@ -65,13 +65,13 @@ Merge affix emoticons into the previous sentence.
 
 <!-- Definitions -->
 
-[travis-badge]: https://img.shields.io/travis/wooorm/nlcst-emoji-modifier.svg
+[travis-badge]: https://img.shields.io/travis/syntax-tree/nlcst-emoji-modifier.svg
 
-[travis]: https://travis-ci.org/wooorm/nlcst-emoji-modifier
+[travis]: https://travis-ci.org/syntax-tree/nlcst-emoji-modifier
 
-[codecov-badge]: https://img.shields.io/codecov/c/github/wooorm/nlcst-emoji-modifier.svg
+[codecov-badge]: https://img.shields.io/codecov/c/github/syntax-tree/nlcst-emoji-modifier.svg
 
-[codecov]: https://codecov.io/github/wooorm/nlcst-emoji-modifier
+[codecov]: https://codecov.io/github/syntax-tree/nlcst-emoji-modifier
 
 [npm]: https://docs.npmjs.com/cli/install
 
@@ -81,4 +81,4 @@ Merge affix emoticons into the previous sentence.
 
 [retext-emoji]: https://github.com/wooorm/retext-emoji
 
-[sentence]: https://github.com/wooorm/nlcst#paragraphnode
+[sentence]: https://github.com/syntax-tree/nlcst#paragraph
