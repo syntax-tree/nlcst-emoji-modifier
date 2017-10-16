@@ -1,13 +1,14 @@
 'use strict';
 
 /* Dependencies. */
-var has = require('has');
 var toString = require('nlcst-to-string');
 var modifier = require('unist-util-modify-children');
 var gemoji = require('gemoji');
 
 /* Expose. */
 module.exports = modifier(mergeEmoji);
+
+var own = {}.hasOwnProperty;
 
 /* Node types. */
 var EMOTICON_NODE = 'EmoticonNode';
@@ -68,7 +69,7 @@ function mergeEmoji(child, index, parent) {
   if (child.type === 'WordNode') {
     /* Sometimes a unicode emoji is marked as a
      * word. Mark it as an `EmoticonNode`. */
-    if (has(unicodes, value)) {
+    if (own.call(unicodes, value)) {
       node = {type: EMOTICON_NODE, value: value};
 
       if (child.position) {
@@ -82,7 +83,7 @@ function mergeEmoji(child, index, parent) {
        * the first. */
       node = siblings[index - 1];
 
-      if (node && has(unicodes, toString(node) + value)) {
+      if (node && own.call(unicodes, toString(node) + value)) {
         node.type = EMOTICON_NODE;
         node.value = toString(node) + value;
 
@@ -95,7 +96,7 @@ function mergeEmoji(child, index, parent) {
         return index;
       }
     }
-  } else if (has(unicodes, value)) {
+  } else if (own.call(unicodes, value)) {
     child.type = EMOTICON_NODE;
     startIndex = index + 1;
     nextSibling = siblings[startIndex];
@@ -124,7 +125,7 @@ function mergeEmoji(child, index, parent) {
         possibleEmoji += toString(lastSibling);
       }
 
-      if (has(unicodes, possibleEmoji)) {
+      if (own.call(unicodes, possibleEmoji)) {
         child.value = possibleEmoji;
 
         if (child.position && lastSibling.position) {
@@ -149,7 +150,7 @@ function mergeEmoji(child, index, parent) {
         loopIndex++;
       }
 
-      if (has(unicodes, possibleEmoji)) {
+      if (own.call(unicodes, possibleEmoji)) {
         child.value = possibleEmoji;
         lastSiblingIndex = loopIndex - 1;
         lastSibling = siblings[lastSiblingIndex];
@@ -171,7 +172,7 @@ function mergeEmoji(child, index, parent) {
     ) {
       possibleEmoji = value + toString(nextSibling) + toString(nextNextSibling);
 
-      if (has(unicodes, possibleEmoji)) {
+      if (own.call(unicodes, possibleEmoji)) {
         child.type = EMOTICON_NODE;
         child.value = possibleEmoji;
 
