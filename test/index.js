@@ -1,6 +1,5 @@
 'use strict';
 
-/* Dependencies. */
 var fs = require('fs');
 var path = require('path');
 var assert = require('assert');
@@ -13,17 +12,12 @@ var removePosition = require('unist-util-remove-position');
 var gemoji = require('gemoji');
 var emoji = require('..');
 
-/* Processors. */
 var position = english();
 var noPosition = english();
 noPosition.position = false;
 
 position.useFirst('tokenizeSentence', emoji);
 noPosition.useFirst('tokenizeSentence', emoji);
-
-/*
- * Tests.
- */
 
 test('nlcst-emoji-modifier()', function (t) {
   var root = path.join(__dirname, 'fixtures');

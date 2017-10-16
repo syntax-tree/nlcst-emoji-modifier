@@ -1,16 +1,13 @@
 'use strict';
 
-/* Dependencies. */
 var toString = require('nlcst-to-string');
 var modifier = require('unist-util-modify-children');
 var gemoji = require('gemoji');
 
-/* Expose. */
 module.exports = modifier(mergeEmoji);
 
 var own = {}.hasOwnProperty;
 
-/* Node types. */
 var EMOTICON_NODE = 'EmoticonNode';
 
 /* Magic numbers.
@@ -25,7 +22,6 @@ var EMOTICON_NODE = 'EmoticonNode';
  * back more than 4 times. */
 var MAX_GEMOJI_PART_COUNT = 12;
 
-/* Constants. */
 var shortcodes = [];
 var unicodes = gemoji.unicode;
 var byName = gemoji.name;
