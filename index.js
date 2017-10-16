@@ -34,6 +34,11 @@ for (key in byName) {
   shortcodes.push(':' + key + ':');
 }
 
+function isVarianceSelector(node) {
+  var nodeStr = toString(node);
+  return nodeStr.charCodeAt() > 65023 && nodeStr.charCodeAt() < 65040;
+}
+
 /* Merge emoji and github-emoji (punctuation marks,
  * symbols, and words) into an `EmoticonNode`. */
 function mergeEmoji(child, index, parent) {
@@ -41,7 +46,7 @@ function mergeEmoji(child, index, parent) {
   var siblingIndex;
   var node;
   var nodes;
-  var value;
+  var value = toString(child);
   var subvalue;
   var left;
   var right;
@@ -53,8 +58,6 @@ function mergeEmoji(child, index, parent) {
   var replace;
 
   if (child.type === 'WordNode') {
-    value = toString(child);
-
     /* Sometimes a unicode emoji is marked as a
      * word. Mark it as an `EmoticonNode`. */
     if (has(unicodes, value)) {
@@ -84,12 +87,84 @@ function mergeEmoji(child, index, parent) {
         return index;
       }
     }
-  } else if (has(unicodes, toString(child))) {
+  } else if (has(unicodes, value)) {
     child.type = EMOTICON_NODE;
-  } else if (toString(child).charAt(0) === ':') {
+    var startIndex = index + 1;
+    var nextSibling = siblings[startIndex];
+    if (nextSibling.type === 'WordNode') {
+      if (!isVarianceSelector(nextSibling)) {
+        return;
+      }
+      var possibleEmoji = value + toString(nextSibling);
+      var maxSiblingIndex = siblings.length;
+      var loopIndex = startIndex + 1;
+      while (
+        loopIndex < maxSiblingIndex &&
+        (loopIndex - startIndex) < 5 &&
+        siblings[loopIndex].type !== 'WordNode'
+      ) {
+        possibleEmoji += toString(siblings[loopIndex]);
+        ++loopIndex;
+      }
+      var lastSibling = siblings[loopIndex];
+
+      if (lastSibling && lastSibling.type === 'WordNode') {
+        possibleEmoji += toString(lastSibling);
+      }
+      if (has(unicodes, possibleEmoji)) {
+        child.value = possibleEmoji;
+        if (child.position && lastSibling.position) {
+          child.position.end = lastSibling.position.end;
+        }
+        siblings.splice(index + 1, loopIndex - index);
+      }
+    } else if (nextSibling.type === 'SymbolNode') {
+      var nextSiblingStr = toString(nextSibling);
+      var possibleEmoji = value + nextSiblingStr;
+      var maxSiblingIndex = siblings.length;
+      var loopIndex = startIndex + 1;
+      while (
+        loopIndex < maxSiblingIndex &&
+        (loopIndex - startIndex) < 5 &&
+        (
+          siblings[loopIndex].type === 'SymbolNode' ||
+          (siblings[loopIndex].type === 'WordNode' && isVarianceSelector(siblings[loopIndex]))
+        )
+      ) {
+        possibleEmoji += toString(siblings[loopIndex]);
+        ++loopIndex;
+      }
+      if (has(unicodes, possibleEmoji)) {
+        child.value = possibleEmoji;
+        var lastSiblingIndex = loopIndex - 1;
+        var lastSibling = siblings[lastSiblingIndex];
+        if (child.position && lastSibling.position) {
+          child.position.end = lastSibling.position.end;
+        }
+        siblings.splice(index + 1, lastSiblingIndex - index);
+      }
+    }
+  } else if (child.type === 'SymbolNode') {
+    var firstSibling = siblings[index + 1];
+    var secondSibling = siblings[index + 2];
+    if (
+      (firstSibling.type === 'SymbolNode' || firstSibling.type === 'WordNode') &&
+      secondSibling.type === 'SymbolNode'
+    ) {
+      var possibleEmoji = value + toString(firstSibling) + toString(secondSibling);
+      if (has(unicodes, possibleEmoji)) {
+        child.type = EMOTICON_NODE;
+        child.value = possibleEmoji;
+        if (child.position && secondSibling.position) {
+          child.position.end = secondSibling.position.end;
+        }
+        siblings.splice(index + 1, 2);
+      }
+    }
+  } else if (value.charAt(0) === ':') {
     nodes = [];
     siblingIndex = index;
-    subvalue = toString(child);
+    subvalue = value;
     left = right = leftMatch = rightMatch = null;
 
     if (subvalue.length === 1) {
