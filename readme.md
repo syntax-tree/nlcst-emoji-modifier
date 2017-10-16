@@ -30,34 +30,37 @@ Yields:
 ```text
 RootNode[1]
 └─ ParagraphNode[1]
-   └─ SentenceNode[10]
-      ├─ WordNode[1]
-      │  └─ TextNode: 'Who'
-      ├─ WhiteSpaceNode: ' '
+   └─ SentenceNode[11]
       ├─ WordNode[3]
-      │  ├─ TextNode: 'doesn'
-      │  ├─ PunctuationNode: '’'
-      │  └─ TextNode: 't'
-      ├─ WhiteSpaceNode: ' '
+      │  ├─ TextNode: "It"
+      │  ├─ PunctuationNode: "'"
+      │  └─ TextNode: "s"
+      ├─ WhiteSpaceNode: " "
       ├─ WordNode[1]
-      │  └─ TextNode: 'like'
-      ├─ WhiteSpaceNode: ' '
+      │  └─ TextNode: "raining"
+      ├─ WhiteSpaceNode: " "
+      ├─ EmoticonNode: ":cat:"
       ├─ WordNode[1]
-      │  └─ TextNode: 'Gemoji'
-      ├─ WhiteSpaceNode: ' '
-      ├─ EmoticonNode: ':+1:'
-      └─ PunctuationNode: '?'
+      │  └─ TextNode: "s"
+      ├─ WhiteSpaceNode: " "
+      ├─ WordNode[1]
+      │  └─ TextNode: "and"
+      ├─ WhiteSpaceNode: " "
+      ├─ EmoticonNode: ":dog:"
+      └─ WordNode[2]
+         ├─ TextNode: "s"
+         └─ PunctuationNode: "."
 ```
 
 ## API
 
-### `emoji(sentence)`
+### `emoji(paragraph)`
 
-Merge affix emoticons into the previous sentence.
+Merge emoji and gemoji into a new `EmoticonNode`.
 
 ###### Parameters
 
-*   `paragraph` ([`NLCSTSentenceNode`][sentence]).
+*   `paragraph` ([`NLCSTParagraphNode`][paragraph]).
 
 ## License
 
@@ -81,4 +84,4 @@ Merge affix emoticons into the previous sentence.
 
 [retext-emoji]: https://github.com/wooorm/retext-emoji
 
-[sentence]: https://github.com/syntax-tree/nlcst#paragraph
+[paragraph]: https://github.com/syntax-tree/nlcst#paragraph
