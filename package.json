@@ -7,13 +7,7 @@
     "nlcst",
     "emoji"
   ],
-  "dependencies": {
-    "gemoji": "^4.2.0",
-    "has": "^1.0.1",
-    "nlcst-to-string": "^2.0.0",
-    "unist-util-modify-children": "^1.0.0"
-  },
-  "repository": "https://github.com/syntax-tree/nlcst-emoji-modifier",
+  "repository": "syntax-tree/nlcst-emoji-modifier",
   "bugs": "https://github.com/syntax-tree/nlcst-emoji-modifier/issues",
   "author": "Titus Wormer <tituswormer@gmail.com> (http://wooorm.com)",
   "contributors": [
@@ -23,6 +17,12 @@
     "data/emoji.json",
     "index.js"
   ],
+  "dependencies": {
+    "gemoji": "^4.2.0",
+    "has": "^1.0.1",
+    "nlcst-to-string": "^2.0.0",
+    "unist-util-modify-children": "^1.0.0"
+  },
   "devDependencies": {
     "browserify": "^14.0.0",
     "esmangle": "^1.0.0",
