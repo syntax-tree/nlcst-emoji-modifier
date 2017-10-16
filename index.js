@@ -34,14 +34,19 @@ for (key in byName) {
   shortcodes.push(':' + key + ':');
 }
 
+function isVarianceSelector(node) {
+  var code = toString(node).charCodeAt(0);
+  return code > 65023 && code < 65040;
+}
+
 /* Merge emoji and github-emoji (punctuation marks,
  * symbols, and words) into an `EmoticonNode`. */
 function mergeEmoji(child, index, parent) {
   var siblings = parent.children;
+  var value = toString(child);
   var siblingIndex;
   var node;
   var nodes;
-  var value;
   var subvalue;
   var left;
   var right;
@@ -51,10 +56,16 @@ function mergeEmoji(child, index, parent) {
   var pos;
   var end;
   var replace;
+  var startIndex;
+  var nextSibling;
+  var nextNextSibling;
+  var possibleEmoji;
+  var maxSiblingIndex;
+  var loopIndex;
+  var lastSibling;
+  var lastSiblingIndex;
 
   if (child.type === 'WordNode') {
-    value = toString(child);
-
     /* Sometimes a unicode emoji is marked as a
      * word. Mark it as an `EmoticonNode`. */
     if (has(unicodes, value)) {
@@ -84,12 +95,97 @@ function mergeEmoji(child, index, parent) {
         return index;
       }
     }
-  } else if (has(unicodes, toString(child))) {
+  } else if (has(unicodes, value)) {
     child.type = EMOTICON_NODE;
-  } else if (toString(child).charAt(0) === ':') {
+    startIndex = index + 1;
+    nextSibling = siblings[startIndex];
+
+    if (nextSibling.type === 'WordNode') {
+      if (!isVarianceSelector(nextSibling)) {
+        return;
+      }
+
+      possibleEmoji = value + toString(nextSibling);
+      maxSiblingIndex = siblings.length;
+      loopIndex = startIndex + 1;
+
+      while (
+        loopIndex < maxSiblingIndex &&
+        (loopIndex - startIndex) < 5 &&
+        siblings[loopIndex].type !== 'WordNode'
+      ) {
+        possibleEmoji += toString(siblings[loopIndex]);
+        loopIndex++;
+      }
+
+      lastSibling = siblings[loopIndex];
+
+      if (lastSibling && lastSibling.type === 'WordNode') {
+        possibleEmoji += toString(lastSibling);
+      }
+
+      if (has(unicodes, possibleEmoji)) {
+        child.value = possibleEmoji;
+
+        if (child.position && lastSibling.position) {
+          child.position.end = lastSibling.position.end;
+        }
+
+        siblings.splice(index + 1, loopIndex - index);
+      }
+    } else if (nextSibling.type === 'SymbolNode') {
+      possibleEmoji = value + toString(nextSibling);
+      maxSiblingIndex = siblings.length;
+      loopIndex = startIndex + 1;
+
+      while (
+        loopIndex < maxSiblingIndex && (loopIndex - startIndex) < 5 &&
+        (
+          siblings[loopIndex].type === 'SymbolNode' ||
+          (siblings[loopIndex].type === 'WordNode' && isVarianceSelector(siblings[loopIndex]))
+        )
+      ) {
+        possibleEmoji += toString(siblings[loopIndex]);
+        loopIndex++;
+      }
+
+      if (has(unicodes, possibleEmoji)) {
+        child.value = possibleEmoji;
+        lastSiblingIndex = loopIndex - 1;
+        lastSibling = siblings[lastSiblingIndex];
+
+        if (child.position && lastSibling.position) {
+          child.position.end = lastSibling.position.end;
+        }
+
+        siblings.splice(index + 1, lastSiblingIndex - index);
+      }
+    }
+  } else if (child.type === 'SymbolNode') {
+    nextSibling = siblings[index + 1];
+    nextNextSibling = siblings[index + 2];
+
+    if (
+      (nextSibling.type === 'SymbolNode' || nextSibling.type === 'WordNode') &&
+      nextNextSibling && nextNextSibling.type === 'SymbolNode'
+    ) {
+      possibleEmoji = value + toString(nextSibling) + toString(nextNextSibling);
+
+      if (has(unicodes, possibleEmoji)) {
+        child.type = EMOTICON_NODE;
+        child.value = possibleEmoji;
+
+        if (child.position && nextNextSibling.position) {
+          child.position.end = nextNextSibling.position.end;
+        }
+
+        siblings.splice(index + 1, 2);
+      }
+    }
+  } else if (value.charAt(0) === ':') {
     nodes = [];
     siblingIndex = index;
-    subvalue = toString(child);
+    subvalue = value;
     left = right = leftMatch = rightMatch = null;
 
     if (subvalue.length === 1) {
