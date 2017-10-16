@@ -15,7 +15,8 @@ var emoji = require('..');
 
 /* Processors. */
 var position = english();
-var noPosition = english({position: false});
+var noPosition = english();
+noPosition.position = false;
 
 position.useFirst('tokenizeSentence', emoji);
 noPosition.useFirst('tokenizeSentence', emoji);

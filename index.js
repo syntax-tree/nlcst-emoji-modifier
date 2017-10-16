@@ -186,7 +186,10 @@ function mergeEmoji(child, index, parent) {
     nodes = [];
     siblingIndex = index;
     subvalue = value;
-    left = right = leftMatch = rightMatch = null;
+    left = null;
+    right = null;
+    leftMatch = null;
+    rightMatch = null;
 
     if (subvalue.length === 1) {
       rightMatch = child;
