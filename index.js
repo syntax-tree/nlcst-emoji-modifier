@@ -63,8 +63,8 @@ function mergeEmoji(child, index, parent) {
   var lastSiblingIndex;
 
   if (child.type === 'WordNode') {
-    /* Sometimes a unicode emoji is marked as a
-     * word. Mark it as an `EmoticonNode`. */
+    /* 1️⃣ — sometimes a unicode emoji is marked as a word. Mark it as
+     * an `EmoticonNode`. */
     if (own.call(unicodes, value)) {
       node = {type: EMOTICON_NODE, value: value};
 
@@ -74,9 +74,8 @@ function mergeEmoji(child, index, parent) {
 
       siblings[index] = node;
     } else {
-      /* Sometimes a unicode emoji is split in two.
-       * Remove the last and add its value to
-       * the first. */
+      /* ❤️ — Sometimes a unicode emoji is split in two.  Remove the last
+       * and add its value to the first. */
       node = siblings[index - 1];
 
       if (node && own.call(unicodes, toString(node) + value)) {
@@ -98,6 +97,7 @@ function mergeEmoji(child, index, parent) {
     nextSibling = siblings[startIndex];
 
     if (nextSibling.type === 'WordNode') {
+      /* 🏌 — Normal emoji. */
       if (!isVarianceSelector(nextSibling)) {
         return;
       }
@@ -121,6 +121,7 @@ function mergeEmoji(child, index, parent) {
         possibleEmoji += toString(lastSibling);
       }
 
+      /* 🏌️‍♀️ — Emoji with variance selector. */
       if (own.call(unicodes, possibleEmoji)) {
         child.value = possibleEmoji;
 
@@ -129,7 +130,10 @@ function mergeEmoji(child, index, parent) {
         }
 
         siblings.splice(index + 1, loopIndex - index);
+
+        return index + 1;
       }
+    /* 👨‍❤️‍💋‍👨 — combined emoji. */
     } else if (nextSibling.type === 'SymbolNode') {
       possibleEmoji = value + toString(nextSibling);
       maxSiblingIndex = siblings.length;
@@ -156,8 +160,11 @@ function mergeEmoji(child, index, parent) {
         }
 
         siblings.splice(index + 1, lastSiblingIndex - index);
+
+        return index + 1;
       }
     }
+  /* 🤽‍♀ — Combined emoji starting in a symbol. */
   } else if (child.type === 'SymbolNode') {
     nextSibling = siblings[index + 1];
     nextNextSibling = siblings[index + 2];
@@ -177,8 +184,11 @@ function mergeEmoji(child, index, parent) {
         }
 
         siblings.splice(index + 1, 2);
+
+        return index + 1;
       }
     }
+  /* :+1: — Gemoji shortcodes. */
   } else if (value.charAt(0) === ':') {
     nodes = [];
     siblingIndex = index;
