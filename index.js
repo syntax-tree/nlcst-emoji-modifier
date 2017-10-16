@@ -31,11 +31,6 @@ for (key in byName) {
   shortcodes.push(':' + key + ':');
 }
 
-function isVarianceSelector(node) {
-  var code = toString(node).charCodeAt(0);
-  return code > 65023 && code < 65040;
-}
-
 /* Merge emoji and github-emoji (punctuation marks,
  * symbols, and words) into an `EmoticonNode`. */
 function mergeEmoji(child, index, parent) {
@@ -320,4 +315,9 @@ function mergeEmoji(child, index, parent) {
 
     return siblingIndex + 3;
   }
+}
+
+function isVarianceSelector(node) {
+  var code = toString(node).charCodeAt(0);
+  return code > 65023 && code < 65040;
 }
