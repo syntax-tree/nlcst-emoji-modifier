@@ -90,6 +90,9 @@ function mergeEmoji(child, index, parent) {
     child.type = EMOTICON_NODE;
     startIndex = index + 1;
     nextSibling = siblings[startIndex];
+    if (!nextSibling) {
+      return;
+    }
 
     if (nextSibling.type === 'WordNode') {
       /* 🏌 — Normal emoji. */
@@ -163,6 +166,9 @@ function mergeEmoji(child, index, parent) {
   } else if (child.type === 'SymbolNode') {
     nextSibling = siblings[index + 1];
     nextNextSibling = siblings[index + 2];
+    if (!nextSibling || !nextNextSibling) {
+      return;
+    }
 
     if (
       (nextSibling.type === 'SymbolNode' || nextSibling.type === 'WordNode') &&
