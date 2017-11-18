@@ -1,7 +1,7 @@
 language: node_js
 node_js:
 - '4.0'
-- '8.0'
+- '9.0'
 after_script: bash <(curl -s https://codecov.io/bash)
 sudo: false
 deploy:
@@ -11,7 +11,7 @@ deploy:
       secure: N9kjXzHlOk0y5AzD3H4rWIBWaJsqZyWAAjyIezHzwIfA3S54BiVQWRQ87VDeytdeq3MNGBn7DZxH3dEy6JiZKPy2AsXo76pEsYknU8dPxV0e6vZn3yT6eojn5p49w29viYCbYwcxinwU/Fugvn98K1W81/B+hhrz5hxK719P6FA=
     on:
       tags: true
-      node: '8.0'
+      node: '9.0'
   - provider: releases
     skip_cleanup: true
     api_key:
@@ -21,4 +21,4 @@ deploy:
       - "nlcst-emoji-modifier.min.js"
     on:
       tags: true
-      node: '8.0'
+      node: '9.0'
