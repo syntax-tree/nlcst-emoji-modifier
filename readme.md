@@ -64,7 +64,7 @@ Merge emoji and gemoji into a new `EmoticonNode`.
 
 ## Contribute
 
-See [`contribute.md` in `syntax-tree/nlcst`][contribute] for ways to get
+See [`contributing.md` in `syntax-tree/nlcst`][contributing] for ways to get
 started.
 
 This organisation has a [Code of Conduct][coc].  By interacting with this
@@ -94,6 +94,6 @@ repository, organisation, or community you agree to abide by its terms.
 
 [paragraph]: https://github.com/syntax-tree/nlcst#paragraph
 
-[contribute]: https://github.com/syntax-tree/nlcst/blob/master/contributing.md
+[contributing]: https://github.com/syntax-tree/nlcst/blob/master/contributing.md
 
 [coc]: https://github.com/syntax-tree/nlcst/blob/master/code-of-conduct.md
