@@ -5,21 +5,13 @@ node_js:
 after_script: bash <(curl -s https://codecov.io/bash)
 sudo: false
 deploy:
-  - provider: npm
-    skip_cleanup: true
-    email: tituswormer@gmail.com
-    api_key:
-      secure: N9kjXzHlOk0y5AzD3H4rWIBWaJsqZyWAAjyIezHzwIfA3S54BiVQWRQ87VDeytdeq3MNGBn7DZxH3dEy6JiZKPy2AsXo76pEsYknU8dPxV0e6vZn3yT6eojn5p49w29viYCbYwcxinwU/Fugvn98K1W81/B+hhrz5hxK719P6FA=
-    on:
-      tags: true
-      node: '9.0'
-  - provider: releases
-    skip_cleanup: true
-    api_key:
-      secure: DfkFffCbPB92KCWByAcQTcL143u6ftLNlHfvlhJZGIkawhKDfJgzjuzat882Wcpw+xkLIZ685GWTGUcVQ2UBYjY9KnCkdkwNBkPGlrTPR82zmsyg+1hvPIfURop4d0xiwtkDaQLnBKQBEPYvcQ73fisYzOiZSrMIx/fSr0UqvcQ=
-    file:
-      - "nlcst-emoji-modifier.js"
-      - "nlcst-emoji-modifier.min.js"
-    on:
-      tags: true
-      node: '9.0'
+  provider: releases
+  skip_cleanup: true
+  api_key:
+    secure: DfkFffCbPB92KCWByAcQTcL143u6ftLNlHfvlhJZGIkawhKDfJgzjuzat882Wcpw+xkLIZ685GWTGUcVQ2UBYjY9KnCkdkwNBkPGlrTPR82zmsyg+1hvPIfURop4d0xiwtkDaQLnBKQBEPYvcQ73fisYzOiZSrMIx/fSr0UqvcQ=
+  file:
+    - "nlcst-emoji-modifier.js"
+    - "nlcst-emoji-modifier.min.js"
+  on:
+    tags: true
+    node: '9.0'
