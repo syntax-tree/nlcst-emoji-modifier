@@ -16,13 +16,13 @@ npm install nlcst-emoji-modifier
 ## Usage
 
 ```javascript
-var modifier = require('nlcst-emoji-modifier');
-var inspect = require('unist-util-inspect');
-var english = require('parse-english')();
+var modifier = require('nlcst-emoji-modifier')
+var inspect = require('unist-util-inspect')
+var english = require('parse-english')()
 
-english.useFirst('tokenizeSentence', modifier);
+english.useFirst('tokenizeSentence', modifier)
 
-console.log(inspect(english.parse('It\'s raining :cat:s and :dog:s.')));
+console.log(inspect(english.parse('It’s raining :cat:s and :dog:s.')))
 ```
 
 Yields:
@@ -33,7 +33,7 @@ RootNode[1]
    └─ SentenceNode[11]
       ├─ WordNode[3]
       │  ├─ TextNode: "It"
-      │  ├─ PunctuationNode: "'"
+      │  ├─ PunctuationNode: "’"
       │  └─ TextNode: "s"
       ├─ WhiteSpaceNode: " "
       ├─ WordNode[1]
