@@ -10,16 +10,14 @@ var own = {}.hasOwnProperty
 
 var EMOTICON_NODE = 'EmoticonNode'
 
-/* Magic numbers.
- *
- * Gemoji's are treated by a parser as multiple nodes.
- * Because this modifier walks backwards, the first colon
- * never matches a gemoji it would normaly walk back to
- * the beginning (the first node). However, because the
- * longest gemoji is tokenized as `Punctuation` (`:`),
- * `Punctuation` (`+`), `Word` (`1`), and `Punctuation`
- * (`:`), we can safely break when the modifier walked
- * back more than 4 times. */
+// Magic numbers.
+
+// Gemoji’s are treated by a parser as multiple nodes.
+// Because this modifier walks backwards, the first colon never matches a gemoji
+// it would normaly walk back to the beginning (the first node).
+// However, because the longest gemoji is tokenized as `Punctuation` (`:`),
+// `Punctuation` (`+`), `Word` (`1`), and `Punctuation` (`:`), we can safely
+// break when the modifier walked back more than 4 times.
 var MAX_GEMOJI_PART_COUNT = 12
 
 var shortcodes = []
@@ -31,8 +29,8 @@ for (key in byName) {
   shortcodes.push(':' + key + ':')
 }
 
-/* Merge emoji and github-emoji (punctuation marks,
- * symbols, and words) into an `EmoticonNode`. */
+// Merge emoji and github-emoji (punctuation marks, symbols, and words) into an
+// `EmoticonNode`.
 function mergeEmoji(child, index, parent) {
   var siblings = parent.children
   var value = toString(child)
@@ -58,8 +56,8 @@ function mergeEmoji(child, index, parent) {
   var lastSiblingIndex
 
   if (child.type === 'WordNode') {
-    /* 1️⃣ — sometimes a unicode emoji is marked as a word. Mark it as
-     * an `EmoticonNode`. */
+    // 1️⃣ — sometimes a unicode emoji is marked as a word. Mark it as an
+    // `EmoticonNode`.
     if (own.call(unicodes, value)) {
       node = {type: EMOTICON_NODE, value: value}
 
@@ -69,8 +67,8 @@ function mergeEmoji(child, index, parent) {
 
       siblings[index] = node
     } else {
-      /* ❤️ — Sometimes a unicode emoji is split in two.  Remove the last
-       * and add its value to the first. */
+      // ❤️ — Sometimes a unicode emoji is split in two.
+      // Remove the last and add its value to the first.
       node = siblings[index - 1]
 
       if (node && own.call(unicodes, toString(node) + value)) {
@@ -95,7 +93,7 @@ function mergeEmoji(child, index, parent) {
     }
 
     if (nextSibling.type === 'WordNode') {
-      /* 🏌 — Normal emoji. */
+      // 🏌 — Normal emoji.
       if (!isVarianceSelector(nextSibling)) {
         return
       }
@@ -119,7 +117,7 @@ function mergeEmoji(child, index, parent) {
         possibleEmoji += toString(lastSibling)
       }
 
-      /* 🏌️‍♀️ — Emoji with variance selector. */
+      // 🏌️‍♀️ — Emoji with variance selector.
       if (own.call(unicodes, possibleEmoji)) {
         child.value = possibleEmoji
 
@@ -131,7 +129,7 @@ function mergeEmoji(child, index, parent) {
 
         return index + 1
       }
-      /* 👨‍❤️‍💋‍👨 — combined emoji. */
+      // 👨‍❤️‍💋‍👨 — combined emoji.
     } else if (nextSibling.type === 'SymbolNode') {
       possibleEmoji = value + toString(nextSibling)
       maxSiblingIndex = siblings.length
@@ -162,7 +160,7 @@ function mergeEmoji(child, index, parent) {
         return index + 1
       }
     }
-    /* 🤽‍♀ — Combined emoji starting in a symbol. */
+    // 🤽‍♀ — Combined emoji starting in a symbol.
   } else if (child.type === 'SymbolNode') {
     nextSibling = siblings[index + 1]
     nextNextSibling = siblings[index + 2]
@@ -190,7 +188,7 @@ function mergeEmoji(child, index, parent) {
         return index + 1
       }
     }
-    /* :+1: — Gemoji shortcodes. */
+    // :+1: — Gemoji shortcodes.
   } else if (value.charAt(0) === ':') {
     nodes = []
     siblingIndex = index
