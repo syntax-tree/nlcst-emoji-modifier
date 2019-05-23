@@ -30,8 +30,7 @@ test('nlcst-emoji-modifier()', function(t) {
     'should throw when not given a parent'
   )
 
-  fs
-    .readdirSync(root)
+  fs.readdirSync(root)
     .filter(negate(hidden))
     .forEach(function(filename) {
       var tree = JSON.parse(fs.readFileSync(path.join(root, filename)))
@@ -60,8 +59,8 @@ test('all gemoji', function(t) {
         var node = position.parse(fixture)
         var emoticon = node.children[0].children[0].children[14]
 
-        assert.equal(emoticon.type, 'EmoticonNode')
-        assert.equal(emoticon.value, value)
+        assert.strictEqual(emoticon.type, 'EmoticonNode')
+        assert.strictEqual(emoticon.value, value)
       }, value)
     })
   })
