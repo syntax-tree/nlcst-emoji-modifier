@@ -8,12 +8,12 @@
 [![Backers][backers-badge]][collective]
 [![Chat][chat-badge]][chat]
 
-Classify unicode emoji and Gemoji shortcodes as `EmoticonNode`s.
+[**nlcst**][nlcst] utility to classify emoji and gemoji shortcodes as
+`EmoticonNode`s.
 
-Implemented by [**retext-emoji**][retext-emoji], but separated for use by
-standalone (non-retext) processing.
+> **Note**: You probably want to use [retext-emoji][].
 
-## Installation
+## Install
 
 [npm][]:
 
@@ -68,15 +68,17 @@ Merge emoji and gemoji into a new `EmoticonNode`.
 
 ###### Parameters
 
-*   `paragraph` ([`NLCSTParagraphNode`][paragraph]).
+*   `paragraph` ([`ParagraphNode`][paragraph]).
 
 ## Contribute
 
-See [`contributing.md` in `syntax-tree/nlcst`][contributing] for ways to get
+See [`contributing.md` in `syntax-tree/.github`][contributing] for ways to get
 started.
+See [`support.md`][support] for ways to get help.
 
-This organisation has a [Code of Conduct][coc].  By interacting with this
-repository, organisation, or community you agree to abide by its terms.
+This project has a [Code of Conduct][coc].
+By interacting with this repository, organisation, or community you agree to
+abide by its terms.
 
 ## License
 
@@ -116,10 +118,14 @@ repository, organisation, or community you agree to abide by its terms.
 
 [author]: https://wooorm.com
 
-[retext-emoji]: https://github.com/wooorm/retext-emoji
+[contributing]: https://github.com/syntax-tree/.github/blob/master/contributing.md
+
+[support]: https://github.com/syntax-tree/.github/blob/master/support.md
+
+[coc]: https://github.com/syntax-tree/.github/blob/master/code-of-conduct.md
+
+[retext-emoji]: https://github.com/syntax-tree/retext-emoji
+
+[nlcst]: https://github.com/syntax-tree/nlcst
 
 [paragraph]: https://github.com/syntax-tree/nlcst#paragraph
-
-[contributing]: https://github.com/syntax-tree/nlcst/blob/master/contributing.md
-
-[coc]: https://github.com/syntax-tree/nlcst/blob/master/code-of-conduct.md
