@@ -1,4 +1,12 @@
-# nlcst-emoji-modifier [![Build Status][travis-badge]][travis] [![Coverage Status][codecov-badge]][codecov]
+# nlcst-emoji-modifier
+
+[![Build][build-badge]][build]
+[![Coverage][coverage-badge]][coverage]
+[![Downloads][downloads-badge]][downloads]
+[![Size][size-badge]][size]
+[![Sponsors][sponsors-badge]][collective]
+[![Backers][backers-badge]][collective]
+[![Chat][chat-badge]][chat]
 
 Classify unicode emoji and Gemoji shortcodes as `EmoticonNode`s.
 
@@ -76,13 +84,31 @@ repository, organisation, or community you agree to abide by its terms.
 
 <!-- Definitions -->
 
-[travis-badge]: https://img.shields.io/travis/syntax-tree/nlcst-emoji-modifier.svg
+[build-badge]: https://img.shields.io/travis/syntax-tree/nlcst-emoji-modifier.svg
 
-[travis]: https://travis-ci.org/syntax-tree/nlcst-emoji-modifier
+[build]: https://travis-ci.org/syntax-tree/nlcst-emoji-modifier
 
-[codecov-badge]: https://img.shields.io/codecov/c/github/syntax-tree/nlcst-emoji-modifier.svg
+[coverage-badge]: https://img.shields.io/codecov/c/github/syntax-tree/nlcst-emoji-modifier.svg
 
-[codecov]: https://codecov.io/github/syntax-tree/nlcst-emoji-modifier
+[coverage]: https://codecov.io/github/syntax-tree/nlcst-emoji-modifier
+
+[downloads-badge]: https://img.shields.io/npm/dm/nlcst-emoji-modifier.svg
+
+[downloads]: https://www.npmjs.com/package/nlcst-emoji-modifier
+
+[size-badge]: https://img.shields.io/bundlephobia/minzip/nlcst-emoji-modifier.svg
+
+[size]: https://bundlephobia.com/result?p=nlcst-emoji-modifier
+
+[sponsors-badge]: https://opencollective.com/unified/sponsors/badge.svg
+
+[backers-badge]: https://opencollective.com/unified/backers/badge.svg
+
+[collective]: https://opencollective.com/unified
+
+[chat-badge]: https://img.shields.io/badge/join%20the%20community-on%20spectrum-7b16ff.svg
+
+[chat]: https://spectrum.chat/unified/syntax-tree
 
 [npm]: https://docs.npmjs.com/cli/install
 
