@@ -58,7 +58,7 @@
             },
             {
               "type": "EmoticonNode",
-              "value": "🤽‍♀",
+              "value": "🤽",
               "position": {
                 "start": {
                   "line": 1,
@@ -67,8 +67,24 @@
                 },
                 "end": {
                   "line": 1,
-                  "column": 8,
-                  "offset": 7
+                  "column": 6,
+                  "offset": 5
+                }
+              }
+            },
+            {
+              "type": "SymbolNode",
+              "value": "‍",
+              "position": {
+                "start": {
+                  "line": 1,
+                  "column": 6,
+                  "offset": 5
+                },
+                "end": {
+                  "line": 1,
+                  "column": 7,
+                  "offset": 6
                 }
               }
             },
@@ -78,13 +94,13 @@
               "position": {
                 "start": {
                   "line": 1,
-                  "column": 8,
-                  "offset": 7
+                  "column": 7,
+                  "offset": 6
                 },
                 "end": {
                   "line": 1,
-                  "column": 9,
-                  "offset": 8
+                  "column": 8,
+                  "offset": 7
                 }
               }
             }
@@ -97,8 +113,8 @@
             },
             "end": {
               "line": 1,
-              "column": 9,
-              "offset": 8
+              "column": 8,
+              "offset": 7
             }
           }
         }
@@ -111,8 +127,8 @@
         },
         "end": {
           "line": 1,
-          "column": 9,
-          "offset": 8
+          "column": 8,
+          "offset": 7
         }
       }
     }
@@ -125,8 +141,8 @@
     },
     "end": {
       "line": 1,
-      "column": 9,
-      "offset": 8
+      "column": 8,
+      "offset": 7
     }
   }
 }
