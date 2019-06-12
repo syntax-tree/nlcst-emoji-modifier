@@ -17,13 +17,13 @@
 
 [npm][]:
 
-```bash
+```sh
 npm install nlcst-emoji-modifier
 ```
 
-## Usage
+## Use
 
-```javascript
+```js
 var modifier = require('nlcst-emoji-modifier')
 var inspect = require('unist-util-inspect')
 var english = require('parse-english')()
@@ -35,40 +35,40 @@ console.log(inspect(english.parse('It’s raining :cat:s and :dog:s.')))
 
 Yields:
 
-```text
-RootNode[1]
-└─ ParagraphNode[1]
-   └─ SentenceNode[11]
-      ├─ WordNode[3]
-      │  ├─ TextNode: "It"
-      │  ├─ PunctuationNode: "’"
-      │  └─ TextNode: "s"
-      ├─ WhiteSpaceNode: " "
-      ├─ WordNode[1]
-      │  └─ TextNode: "raining"
-      ├─ WhiteSpaceNode: " "
-      ├─ EmoticonNode: ":cat:"
-      ├─ WordNode[1]
-      │  └─ TextNode: "s"
-      ├─ WhiteSpaceNode: " "
-      ├─ WordNode[1]
-      │  └─ TextNode: "and"
-      ├─ WhiteSpaceNode: " "
-      ├─ EmoticonNode: ":dog:"
-      └─ WordNode[2]
-         ├─ TextNode: "s"
-         └─ PunctuationNode: "."
+```txt
+RootNode[1] (1:1-1:32, 0-31)
+└─ ParagraphNode[1] (1:1-1:32, 0-31)
+   └─ SentenceNode[11] (1:1-1:32, 0-31)
+      ├─ WordNode[3] (1:1-1:5, 0-4)
+      │  ├─ TextNode: "It" (1:1-1:3, 0-2)
+      │  ├─ PunctuationNode: "’" (1:3-1:4, 2-3)
+      │  └─ TextNode: "s" (1:4-1:5, 3-4)
+      ├─ WhiteSpaceNode: " " (1:5-1:6, 4-5)
+      ├─ WordNode[1] (1:6-1:13, 5-12)
+      │  └─ TextNode: "raining" (1:6-1:13, 5-12)
+      ├─ WhiteSpaceNode: " " (1:13-1:14, 12-13)
+      ├─ EmoticonNode: ":cat:" (1:14-1:19, 13-18)
+      ├─ WordNode[1] (1:19-1:20, 18-19)
+      │  └─ TextNode: "s" (1:19-1:20, 18-19)
+      ├─ WhiteSpaceNode: " " (1:20-1:21, 19-20)
+      ├─ WordNode[1] (1:21-1:24, 20-23)
+      │  └─ TextNode: "and" (1:21-1:24, 20-23)
+      ├─ WhiteSpaceNode: " " (1:24-1:25, 23-24)
+      ├─ EmoticonNode: ":dog:" (1:25-1:30, 24-29)
+      └─ WordNode[2] (1:30-1:32, 29-31)
+         ├─ TextNode: "s" (1:30-1:31, 29-30)
+         └─ PunctuationNode: "." (1:31-1:32, 30-31)
 ```
 
 ## API
 
-### `emoji(paragraph)`
+### `emoji(node)`
 
 Merge emoji and gemoji into a new `EmoticonNode`.
 
 ###### Parameters
 
-*   `paragraph` ([`ParagraphNode`][paragraph]).
+*   `node` ([`SentenceNode`][sentence]).
 
 ## Contribute
 
@@ -128,4 +128,4 @@ abide by its terms.
 
 [nlcst]: https://github.com/syntax-tree/nlcst
 
-[paragraph]: https://github.com/syntax-tree/nlcst#paragraph
+[sentence]: https://github.com/syntax-tree/nlcst#sentence

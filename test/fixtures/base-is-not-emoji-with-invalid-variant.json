@@ -57,7 +57,7 @@
               }
             },
             {
-              "type": "SymbolNode",
+              "type": "EmoticonNode",
               "value": "🤽",
               "position": {
                 "start": {
