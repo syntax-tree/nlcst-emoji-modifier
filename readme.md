@@ -70,6 +70,13 @@ Merge emoji and gemoji into a new `EmoticonNode`.
 
 *   `node` ([`SentenceNode`][sentence]).
 
+## Related
+
+*   [`nlcst-affix-emoticon-modifier`](https://github.com/syntax-tree/nlcst-affix-emoticon-modifier)
+    — Merge affix emoticons into the previous sentence in nlcst
+*   [`nlcst-emoticon-modifier`](https://github.com/syntax-tree/nlcst-emoticon-modifier)
+    — Support emoticons
+
 ## Contribute
 
 See [`contributing.md` in `syntax-tree/.github`][contributing] for ways to get
