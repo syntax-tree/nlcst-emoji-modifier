@@ -28,8 +28,8 @@
     "index.js"
   ],
   "dependencies": {
-    "emoji-regex": "^8.0.0",
-    "gemoji": "^4.0.0",
+    "emoji-regex": "^9.0.0",
+    "gemoji": "^5.0.0",
     "nlcst-to-string": "^2.0.0",
     "unist-util-generated": "^1.0.0",
     "unist-util-position": "^3.0.0",

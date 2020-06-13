@@ -4,13 +4,12 @@ var visit = require('unist-util-visit')
 var position = require('unist-util-position')
 var generated = require('unist-util-generated')
 var toString = require('nlcst-to-string')
-var gemoji = require('gemoji')
+var gemojiNameToEmoji = require('gemoji/name-to-emoji')
 var emojiRegex = require('emoji-regex')
 
 module.exports = mergeEmoji
 
 var own = {}.hasOwnProperty
-var byName = gemoji.name
 var colon = ':'
 
 // Merge emoji (👍) and Gemoji (GitHub emoji, :+1:).
@@ -176,7 +175,7 @@ function findEmoji(node) {
   while (end !== -1) {
     match = value.slice(start + 1, end)
 
-    if (own.call(byName, match)) {
+    if (own.call(gemojiNameToEmoji, match)) {
       matches.push({start: start, end: end})
       start = value.indexOf(colon, end + 1)
     } else {

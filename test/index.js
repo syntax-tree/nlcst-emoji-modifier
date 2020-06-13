@@ -118,15 +118,9 @@ test('emojiModifier()', function (t) {
 test('all emoji and gemoji', function (t) {
   var force = '\uFE0F'
 
-  Object.keys(gemoji.name).forEach(function (key) {
-    var shortcode = ':' + key + ':'
-    var emoji = gemoji.name[key].emoji
-
-    // Old github/gemoji used one FE0F variant selector.
-    // That’s changed in the beta, so use the future (and correct) version.
-    if (emoji === '👁‍🗨') {
-      emoji = '👁️‍🗨️'
-    }
+  gemoji.forEach(function (info) {
+    var shortcode = ':' + info.names[0] + ':'
+    var emoji = info.emoji
 
     t.doesNotThrow(function () {
       var fixture = 'Alpha ' + shortcode + ' bravo.'
