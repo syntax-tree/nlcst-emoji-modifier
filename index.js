@@ -12,6 +12,8 @@ module.exports = mergeEmoji
 var own = {}.hasOwnProperty
 var colon = ':'
 
+var vs16 = 0xfe0f
+
 // Merge emoji (👍) and Gemoji (GitHub emoji, :+1:).
 function mergeEmoji(node) {
   if (!node || !node.children) {
@@ -189,6 +191,11 @@ function findEmoji(node) {
   while ((match = emojiExpression.exec(value))) {
     start = match.index
     end = start + match[0].length - 1
+
+    if (value.charCodeAt(end + 1) === vs16) {
+      end++
+    }
+
     matches.push({start: start, end: end})
   }
 

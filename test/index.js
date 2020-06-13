@@ -20,6 +20,8 @@ noPosition.position = false
 position.useFirst('tokenizeSentence', emoji)
 noPosition.useFirst('tokenizeSentence', emoji)
 
+var vs16 = '\uFE0F'
+
 test('emojiModifier()', function (t) {
   var root = path.join(__dirname, 'fixtures')
 
@@ -97,6 +99,25 @@ test('emojiModifier()', function (t) {
     'should merge punctuation, symbols, words'
   )
 
+  t.deepEqual(
+    emoji(
+      u('SentenceNode', [
+        u('WordNode', [u('TextNode', 'Zap')]),
+        u('WhiteSpaceNode', ' '),
+        u('SymbolNode', '⚡'),
+        u('WordNode', [u('TextNode', '️')]),
+        u('PunctuationNode', '.')
+      ])
+    ),
+    u('SentenceNode', [
+      u('WordNode', [u('TextNode', 'Zap')]),
+      u('WhiteSpaceNode', ' '),
+      u('EmoticonNode', '⚡️'),
+      u('PunctuationNode', '.')
+    ]),
+    'should support a by GH not required variant selector'
+  )
+
   fs.readdirSync(root)
     .filter(negate(hidden))
     .forEach(function (filename) {
@@ -116,8 +137,6 @@ test('emojiModifier()', function (t) {
 })
 
 test('all emoji and gemoji', function (t) {
-  var force = '\uFE0F'
-
   gemoji.forEach(function (info) {
     var shortcode = ':' + info.names[0] + ':'
     var emoji = info.emoji
@@ -139,9 +158,9 @@ test('all emoji and gemoji', function (t) {
       // Try with variant selector.
       if (node.type !== 'EmoticonNode' || node.value !== expected) {
         expected =
-          expected.charAt(expected.length - 1) === force
+          expected.charAt(expected.length - 1) === vs16
             ? expected
-            : expected + force
+            : expected + vs16
         tree = position.parse('Alpha ' + expected + ' bravo.')
         node = tree.children[0].children[0].children[2]
 
