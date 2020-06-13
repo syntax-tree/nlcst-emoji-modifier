@@ -38,7 +38,7 @@ function changeParent(node, matches, start) {
   var result
   var child
   var merged
-  var prev
+  var previous
   var parent
 
   while (++index < length) {
@@ -62,18 +62,18 @@ function changeParent(node, matches, start) {
     child = nodes[index]
 
     if (child.type === 'EmoticonNode') {
-      if (prev && prev.match === child.match) {
-        prev.value += child.value
+      if (previous && previous.match === child.match) {
+        previous.value += child.value
 
-        if (!generated(prev)) {
-          prev.position.end = position.end(child)
+        if (!generated(previous)) {
+          previous.position.end = position.end(child)
         }
       } else {
-        prev = child
+        previous = child
         merged.push(child)
       }
     } else {
-      prev = null
+      previous = null
 
       if (node.type === 'WordNode') {
         parent = {type: node.type, children: [child]}

@@ -20,11 +20,11 @@ noPosition.position = false
 position.useFirst('tokenizeSentence', emoji)
 noPosition.useFirst('tokenizeSentence', emoji)
 
-test('emojiModifier()', function(t) {
+test('emojiModifier()', function (t) {
   var root = path.join(__dirname, 'fixtures')
 
   t.throws(
-    function() {
+    function () {
       emoji({})
     },
     /Missing children in `parent/,
@@ -99,7 +99,7 @@ test('emojiModifier()', function(t) {
 
   fs.readdirSync(root)
     .filter(negate(hidden))
-    .forEach(function(filename) {
+    .forEach(function (filename) {
       var tree = JSON.parse(fs.readFileSync(path.join(root, filename)))
       var fixture = toString(tree)
       var name = path.basename(filename, path.extname(filename))
@@ -115,10 +115,10 @@ test('emojiModifier()', function(t) {
   t.end()
 })
 
-test('all emoji and gemoji', function(t) {
+test('all emoji and gemoji', function (t) {
   var force = '\uFE0F'
 
-  Object.keys(gemoji.name).forEach(function(key) {
+  Object.keys(gemoji.name).forEach(function (key) {
     var shortcode = ':' + key + ':'
     var emoji = gemoji.name[key].emoji
 
@@ -128,7 +128,7 @@ test('all emoji and gemoji', function(t) {
       emoji = '👁️‍🗨️'
     }
 
-    t.doesNotThrow(function() {
+    t.doesNotThrow(function () {
       var fixture = 'Alpha ' + shortcode + ' bravo.'
       var tree = position.parse(fixture)
       var node = tree.children[0].children[0].children[2]
@@ -137,7 +137,7 @@ test('all emoji and gemoji', function(t) {
       assert.strictEqual(node.value, shortcode, 'value')
     }, shortcode)
 
-    t.doesNotThrow(function() {
+    t.doesNotThrow(function () {
       var expected = emoji
       var tree = position.parse('Alpha ' + emoji + ' bravo.')
       var node = tree.children[0].children[0].children[2]
