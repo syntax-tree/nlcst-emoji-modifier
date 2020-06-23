@@ -1,3 +1,5 @@
 coverage/
 nlcst-emoji-modifier.js
 nlcst-emoji-modifier.min.js
+*.json
+*.md
