@@ -10,9 +10,7 @@ var emojiRegex = require('emoji-regex')
 module.exports = mergeEmoji
 
 var own = {}.hasOwnProperty
-var colon = ':'
-
-var vs16 = 0xfe0f
+var push = [].push
 
 // Merge emoji (👍) and Gemoji (GitHub emoji, :+1:).
 function mergeEmoji(node) {
@@ -20,10 +18,7 @@ function mergeEmoji(node) {
     throw new Error('Missing children in `parent`')
   }
 
-  var matches = findEmoji(node)
-  var result = changeParent(node, matches, 0)
-
-  node.children = result.nodes
+  node.children = changeParent(node, findEmoji(node), 0).nodes
 
   visit(node, 'EmoticonNode', removeMatch)
 
@@ -32,61 +27,48 @@ function mergeEmoji(node) {
 
 function changeParent(node, matches, start) {
   var children = node.children
-  var length = children.length
   var end = start
   var index = -1
   var nodes = []
+  var merged = []
   var result
-  var child
-  var merged
   var previous
-  var parent
 
-  while (++index < length) {
-    child = children[index]
-
-    result = child.children
-      ? changeParent(child, matches, end)
-      : changeLeaf(child, matches, end)
-
-    nodes = nodes.concat(result.nodes)
+  while (++index < children.length) {
+    result = children[index].children
+      ? changeParent(children[index], matches, end)
+      : changeLeaf(children[index], matches, end)
+    push.apply(nodes, result.nodes)
     end = result.end
   }
 
   index = -1
-  length = nodes.length
-  merged = []
 
-  while (++index < length) {
-    child = nodes[index]
-
-    if (child.type === 'EmoticonNode') {
-      if (previous && previous.match === child.match) {
-        previous.value += child.value
+  while (++index < nodes.length) {
+    if (nodes[index].type === 'EmoticonNode') {
+      if (previous && previous._match === nodes[index]._match) {
+        previous.value += nodes[index].value
 
         if (!generated(previous)) {
-          previous.position.end = position.end(child)
+          previous.position.end = position.end(nodes[index])
         }
       } else {
-        previous = child
-        merged.push(child)
+        previous = nodes[index]
+        merged.push(nodes[index])
       }
     } else {
       previous = null
 
       if (node.type === 'WordNode') {
-        parent = {type: node.type, children: [child]}
+        result = {type: node.type, children: [nodes[index]]}
 
-        if (!generated(child)) {
-          parent.position = {
-            start: position.start(child),
-            end: position.end(child)
-          }
+        if (!generated(nodes[index])) {
+          result.position = position(nodes[index])
         }
 
-        merged.push(parent)
+        merged.push(result)
       } else {
-        merged.push(child)
+        merged.push(nodes[index])
       }
     }
   }
@@ -98,33 +80,33 @@ function changeLeaf(node, matches, start) {
   var value = toString(node)
   var point = generated(node) ? null : position.start(node)
   var end = start + value.length
-  var length = matches.length
   var index = -1
   var textEnd = 0
   var nodes = []
-  var emojiBegin
   var emojiEnd
   var child
   var match
 
-  while (++index < length) {
+  while (++index < matches.length) {
     match = matches[index]
-    emojiBegin = match.start - start
     emojiEnd = match.end - start + 1
 
-    if (emojiBegin < value.length && emojiEnd > 0) {
-      if (emojiBegin > textEnd) {
-        child = {type: node.type, value: value.slice(textEnd, emojiBegin)}
+    if (match.start - start < value.length && emojiEnd > 0) {
+      if (match.start - start > textEnd) {
+        child = {
+          type: node.type,
+          value: value.slice(textEnd, match.start - start)
+        }
 
         if (point) {
           child.position = {
             start: shift(point, textEnd),
-            end: shift(point, emojiBegin)
+            end: shift(point, match.start - start)
           }
         }
 
         nodes.push(child)
-        textEnd = emojiBegin
+        textEnd = match.start - start
       }
 
       if (emojiEnd > value.length) {
@@ -134,7 +116,7 @@ function changeLeaf(node, matches, start) {
       child = {
         type: 'EmoticonNode',
         value: value.slice(textEnd, emojiEnd),
-        match: match
+        _match: match
       }
 
       if (point) {
@@ -145,7 +127,6 @@ function changeLeaf(node, matches, start) {
       }
 
       nodes.push(child)
-
       textEnd = emojiEnd
     }
   }
@@ -167,8 +148,8 @@ function findEmoji(node) {
   var emojiExpression = emojiRegex()
   var matches = []
   var value = toString(node)
-  var start = value.indexOf(colon)
-  var end = start === -1 ? -1 : value.indexOf(colon, start + 1)
+  var start = value.indexOf(':')
+  var end = start === -1 ? -1 : value.indexOf(':', start + 1)
   var match
 
   // Get Gemoji shortcodes.
@@ -177,12 +158,12 @@ function findEmoji(node) {
 
     if (own.call(gemojiNameToEmoji, match)) {
       matches.push({start: start, end: end})
-      start = value.indexOf(colon, end + 1)
+      start = value.indexOf(':', end + 1)
     } else {
       start = end
     }
 
-    end = start === -1 ? -1 : value.indexOf(colon, start + 1)
+    end = start === -1 ? -1 : value.indexOf(':', start + 1)
   }
 
   // Get emoji.
@@ -190,7 +171,7 @@ function findEmoji(node) {
     start = match.index
     end = start + match[0].length - 1
 
-    if (value.charCodeAt(end + 1) === vs16) {
+    if (value.charCodeAt(end + 1) === 0xfe0f) {
       end++
     }
 
@@ -203,7 +184,7 @@ function findEmoji(node) {
 }
 
 function removeMatch(node) {
-  delete node.match
+  delete node._match
 }
 
 function sort(a, b) {
