@@ -45,11 +45,9 @@ function changeParent(node, matches, start) {
   while (++index < length) {
     child = children[index]
 
-    if (child.children) {
-      result = changeParent(child, matches, end)
-    } else {
-      result = changeLeaf(child, matches, end)
-    }
+    result = child.children
+      ? changeParent(child, matches, end)
+      : changeLeaf(child, matches, end)
 
     nodes = nodes.concat(result.nodes)
     end = result.end
