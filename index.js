@@ -1,19 +1,15 @@
-'use strict'
-
-var visit = require('unist-util-visit')
-var position = require('unist-util-position')
-var generated = require('unist-util-generated')
-var toString = require('nlcst-to-string')
-var gemojiNameToEmoji = require('gemoji/name-to-emoji')
-var emojiRegex = require('emoji-regex')
-
-module.exports = mergeEmoji
+import {visit} from 'unist-util-visit'
+import {position, pointStart, pointEnd} from 'unist-util-position'
+import {generated} from 'unist-util-generated'
+import {toString} from 'nlcst-to-string'
+import {nameToEmoji} from 'gemoji'
+import emojiRegex from 'emoji-regex'
 
 var own = {}.hasOwnProperty
 var push = [].push
 
 // Merge emoji (👍) and Gemoji (GitHub emoji, :+1:).
-function mergeEmoji(node) {
+export function emojiModifier(node) {
   if (!node || !node.children) {
     throw new Error('Missing children in `parent`')
   }
@@ -50,7 +46,7 @@ function changeParent(node, matches, start) {
         previous.value += nodes[index].value
 
         if (!generated(previous)) {
-          previous.position.end = position.end(nodes[index])
+          previous.position.end = pointEnd(nodes[index])
         }
       } else {
         previous = nodes[index]
@@ -73,12 +69,12 @@ function changeParent(node, matches, start) {
     }
   }
 
-  return {end: end, nodes: merged}
+  return {end, nodes: merged}
 }
 
 function changeLeaf(node, matches, start) {
   var value = toString(node)
-  var point = generated(node) ? null : position.start(node)
+  var point = generated(node) ? null : pointStart(node)
   var end = start + value.length
   var index = -1
   var textEnd = 0
@@ -141,7 +137,7 @@ function changeLeaf(node, matches, start) {
     nodes.push(child)
   }
 
-  return {end: end, nodes: nodes}
+  return {end, nodes}
 }
 
 function findEmoji(node) {
@@ -156,8 +152,8 @@ function findEmoji(node) {
   while (end !== -1) {
     match = value.slice(start + 1, end)
 
-    if (own.call(gemojiNameToEmoji, match)) {
-      matches.push({start: start, end: end})
+    if (own.call(nameToEmoji, match)) {
+      matches.push({start, end})
       start = value.indexOf(':', end + 1)
     } else {
       start = end
@@ -175,7 +171,7 @@ function findEmoji(node) {
       end++
     }
 
-    matches.push({start: start, end: end})
+    matches.push({start, end})
   }
 
   matches.sort(sort)

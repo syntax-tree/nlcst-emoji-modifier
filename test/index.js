@@ -1,40 +1,37 @@
-'use strict'
+import fs from 'fs'
+import path from 'path'
+import assert from 'assert'
+import test from 'tape'
+import {ParseEnglish} from 'parse-english'
+import {isHidden} from 'is-hidden'
+import {toString} from 'nlcst-to-string'
+import {removePosition} from 'unist-util-remove-position'
+import {u} from 'unist-builder'
+import {gemoji} from 'gemoji'
+import {emojiModifier} from '../index.js'
 
-var fs = require('fs')
-var path = require('path')
-var assert = require('assert')
-var test = require('tape')
-var english = require('parse-english')
-var negate = require('negate')
-var hidden = require('is-hidden')
-var toString = require('nlcst-to-string')
-var removePosition = require('unist-util-remove-position')
-var u = require('unist-builder')
-var gemoji = require('gemoji')
-var emoji = require('..')
-
-var position = english()
-var noPosition = english()
+var position = new ParseEnglish()
+var noPosition = new ParseEnglish()
 noPosition.position = false
 
-position.useFirst('tokenizeSentence', emoji)
-noPosition.useFirst('tokenizeSentence', emoji)
+position.useFirst('tokenizeSentence', emojiModifier)
+noPosition.useFirst('tokenizeSentence', emojiModifier)
 
 var vs16 = '\uFE0F'
 
 test('emojiModifier()', function (t) {
-  var root = path.join(__dirname, 'fixtures')
+  var root = path.join('test', 'fixtures')
 
   t.throws(
     function () {
-      emoji({})
+      emojiModifier({})
     },
     /Missing children in `parent/,
     'should throw when not given a parent'
   )
 
   t.deepEqual(
-    emoji(
+    emojiModifier(
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Alpha')]),
         u('WhiteSpaceNode', ' '),
@@ -62,7 +59,7 @@ test('emojiModifier()', function (t) {
   )
 
   t.deepEqual(
-    emoji(
+    emojiModifier(
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Alpha')]),
         u('WhiteSpaceNode', ' '),
@@ -81,7 +78,7 @@ test('emojiModifier()', function (t) {
   )
 
   t.deepEqual(
-    emoji(
+    emojiModifier(
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Alpha')]),
         u('WhiteSpaceNode', ' '),
@@ -100,7 +97,7 @@ test('emojiModifier()', function (t) {
   )
 
   t.deepEqual(
-    emoji(
+    emojiModifier(
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Zap')]),
         u('WhiteSpaceNode', ' '),
@@ -118,12 +115,14 @@ test('emojiModifier()', function (t) {
     'should support a by GH not required variant selector'
   )
 
-  var files = fs.readdirSync(root).filter(negate(hidden))
+  var files = fs.readdirSync(root)
   var index = -1
   var tree
   var name
 
   while (++index < files.length) {
+    if (isHidden(files[index])) continue
+
     tree = JSON.parse(fs.readFileSync(path.join(root, files[index])))
     name = path.basename(files[index], path.extname(files[index]))
 

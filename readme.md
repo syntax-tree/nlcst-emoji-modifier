@@ -15,6 +15,9 @@
 
 ## Install
 
+This package is [ESM only](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c):
+Node 12+ is needed to use it and it must be `import`ed instead of `require`d.
+
 [npm][]:
 
 ```sh
@@ -24,11 +27,12 @@ npm install nlcst-emoji-modifier
 ## Use
 
 ```js
-var modifier = require('nlcst-emoji-modifier')
-var inspect = require('unist-util-inspect')
-var english = require('parse-english')()
+import {emojiModifier} from 'nlcst-emoji-modifier'
+import {inspect} from 'unist-util-inspect'
+import {ParseEnglish} from 'parse-english'
 
-english.useFirst('tokenizeSentence', modifier)
+var english = new ParseEnglish()
+english.useFirst('tokenizeSentence', emojiModifier)
 
 console.log(inspect(english.parse('It’s raining :cat:s and :dog:s.')))
 ```
@@ -62,7 +66,10 @@ RootNode[1] (1:1-1:32, 0-31)
 
 ## API
 
-### `emoji(node)`
+This package exports the following identifiers: `emojiModifier`.
+There is no default export.
+
+### `emojiModifier(node)`
 
 Merge emoji and gemoji into a new `EmoticonNode`.
 
