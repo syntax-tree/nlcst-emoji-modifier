@@ -1,7 +1,12 @@
+/**
+ * @typedef {import('unist').Node} Node
+ */
+
 import fs from 'fs'
 import path from 'path'
 import assert from 'assert'
 import test from 'tape'
+// @ts-ignore Remove when typed.
 import {ParseEnglish} from 'parse-english'
 import {isHidden} from 'is-hidden'
 import {toString} from 'nlcst-to-string'
@@ -24,6 +29,7 @@ test('emojiModifier()', function (t) {
 
   t.throws(
     function () {
+      // @ts-ignore runtime.
       emojiModifier({})
     },
     /Missing children in `parent/,
@@ -117,13 +123,15 @@ test('emojiModifier()', function (t) {
 
   var files = fs.readdirSync(root)
   var index = -1
+  /** @type {Node} */
   var tree
+  /** @type {string} */
   var name
 
   while (++index < files.length) {
     if (isHidden(files[index])) continue
 
-    tree = JSON.parse(fs.readFileSync(path.join(root, files[index])))
+    tree = JSON.parse(String(fs.readFileSync(path.join(root, files[index]))))
     name = path.basename(files[index], path.extname(files[index]))
 
     t.deepEqual(position.parse(toString(tree)), tree, name)

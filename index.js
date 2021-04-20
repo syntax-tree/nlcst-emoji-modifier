@@ -1,3 +1,17 @@
+/**
+ * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Parent} Parent
+ * @typedef {import('unist').Point} Point
+ *
+ * @typedef {Object} FindMatch
+ * @property {number} start
+ * @property {number} end
+ *
+ * @typedef {Object} ChangeResult
+ * @property {Array.<Node>} nodes
+ * @property {number} end
+ */
+
 import {visit} from 'unist-util-visit'
 import {position, pointStart, pointEnd} from 'unist-util-position'
 import {generated} from 'unist-util-generated'
@@ -8,7 +22,11 @@ import emojiRegex from 'emoji-regex'
 var own = {}.hasOwnProperty
 var push = [].push
 
-// Merge emoji (👍) and Gemoji (GitHub emoji, :+1:).
+/**
+ * Merge emoji (👍) and Gemoji (GitHub emoji, :+1:).
+ *
+ * @param {Parent} node
+ */
 export function emojiModifier(node) {
   if (!node || !node.children) {
     throw new Error('Missing children in `parent`')
@@ -21,18 +39,30 @@ export function emojiModifier(node) {
   return node
 }
 
+/**
+ * @param {Parent} node
+ * @param {Array.<FindMatch>} matches
+ * @param {number} start
+ */
 function changeParent(node, matches, start) {
   var children = node.children
   var end = start
   var index = -1
+  /** @type {Array.<Node>} */
   var nodes = []
+  /** @type {Array.<Node>} */
   var merged = []
+  /** @type {ChangeResult} */
   var result
+  /** @type {Node} */
+  var child
+  /** @type {Node} */
   var previous
 
   while (++index < children.length) {
     result = children[index].children
-      ? changeParent(children[index], matches, end)
+      ? // @ts-ignore Looks like a parent.
+        changeParent(children[index], matches, end)
       : changeLeaf(children[index], matches, end)
     push.apply(nodes, result.nodes)
     end = result.end
@@ -43,6 +73,7 @@ function changeParent(node, matches, start) {
   while (++index < nodes.length) {
     if (nodes[index].type === 'EmoticonNode') {
       if (previous && previous._match === nodes[index]._match) {
+        // @ts-ignore Both literals.
         previous.value += nodes[index].value
 
         if (!generated(previous)) {
@@ -56,13 +87,13 @@ function changeParent(node, matches, start) {
       previous = null
 
       if (node.type === 'WordNode') {
-        result = {type: node.type, children: [nodes[index]]}
+        child = {type: node.type, children: [nodes[index]]}
 
         if (!generated(nodes[index])) {
-          result.position = position(nodes[index])
+          child.position = position(nodes[index])
         }
 
-        merged.push(result)
+        merged.push(child)
       } else {
         merged.push(nodes[index])
       }
@@ -72,15 +103,25 @@ function changeParent(node, matches, start) {
   return {end, nodes: merged}
 }
 
+/**
+ * @param {Node} node
+ * @param {Array.<FindMatch>} matches
+ * @param {number} start
+ * @returns {ChangeResult}
+ */
 function changeLeaf(node, matches, start) {
   var value = toString(node)
   var point = generated(node) ? null : pointStart(node)
   var end = start + value.length
   var index = -1
   var textEnd = 0
+  /** @type {Array.<Node>} */
   var nodes = []
+  /** @type {number} */
   var emojiEnd
+  /** @type {Node} */
   var child
+  /** @type {FindMatch} */
   var match
 
   while (++index < matches.length) {
@@ -140,19 +181,26 @@ function changeLeaf(node, matches, start) {
   return {end, nodes}
 }
 
+/**
+ * @param {Node} node
+ */
 function findEmoji(node) {
   var emojiExpression = emojiRegex()
+  /** @type {Array.<FindMatch>} */
   var matches = []
   var value = toString(node)
   var start = value.indexOf(':')
   var end = start === -1 ? -1 : value.indexOf(':', start + 1)
+  /** @type {string} */
+  var slice
+  /** @type {RegExpExecArray} */
   var match
 
   // Get Gemoji shortcodes.
   while (end !== -1) {
-    match = value.slice(start + 1, end)
+    slice = value.slice(start + 1, end)
 
-    if (own.call(nameToEmoji, match)) {
+    if (own.call(nameToEmoji, slice)) {
       matches.push({start, end})
       start = value.indexOf(':', end + 1)
     } else {
@@ -179,14 +227,27 @@ function findEmoji(node) {
   return matches
 }
 
+/**
+ * @param {Node} node
+ */
 function removeMatch(node) {
   delete node._match
 }
 
+/**
+ * @param {FindMatch} a
+ * @param {FindMatch} b
+ * @returns {number}
+ */
 function sort(a, b) {
   return a.start - b.start
 }
 
+/**
+ * @param {Point} point
+ * @param {number} offset
+ * @returns {Point}
+ */
 function shift(point, offset) {
   return {
     line: point.line,
