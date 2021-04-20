@@ -118,20 +118,22 @@ test('emojiModifier()', function (t) {
     'should support a by GH not required variant selector'
   )
 
-  fs.readdirSync(root)
-    .filter(negate(hidden))
-    .forEach(function (filename) {
-      var tree = JSON.parse(fs.readFileSync(path.join(root, filename)))
-      var fixture = toString(tree)
-      var name = path.basename(filename, path.extname(filename))
+  var files = fs.readdirSync(root).filter(negate(hidden))
+  var index = -1
+  var tree
+  var name
 
-      t.deepEqual(position.parse(fixture), tree, name)
-      t.deepEqual(
-        noPosition.parse(fixture),
-        removePosition(tree, true),
-        name + ' (positionless)'
-      )
-    })
+  while (++index < files.length) {
+    tree = JSON.parse(fs.readFileSync(path.join(root, files[index])))
+    name = path.basename(files[index], path.extname(files[index]))
+
+    t.deepEqual(position.parse(toString(tree)), tree, name)
+    t.deepEqual(
+      noPosition.parse(toString(tree)),
+      removePosition(tree, true),
+      name + ' (positionless)'
+    )
+  }
 
   t.end()
 })
