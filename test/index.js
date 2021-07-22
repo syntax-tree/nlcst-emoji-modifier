@@ -2,9 +2,9 @@
  * @typedef {import('unist').Node} Node
  */
 
-import fs from 'fs'
-import path from 'path'
-import assert from 'assert'
+import fs from 'node:fs'
+import path from 'node:path'
+import assert from 'node:assert'
 import test from 'tape'
 // @ts-expect-error Remove when typed.
 import {ParseEnglish} from 'parse-english'

@@ -209,7 +209,7 @@ function findEmoji(node) {
     start = match.index
     end = start + match[0].length - 1
 
-    if (value.charCodeAt(end + 1) === 0xfe0f) {
+    if (value.charCodeAt(end + 1) === 0xfe_0f) {
       end++
     }
 
