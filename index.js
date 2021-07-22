@@ -21,8 +21,7 @@ import {toString} from 'nlcst-to-string'
 import {nameToEmoji} from 'gemoji'
 import emojiRegex from 'emoji-regex'
 
-var own = {}.hasOwnProperty
-var push = [].push
+const own = {}.hasOwnProperty
 
 /**
  * Merge emoji (👍) and Gemoji (GitHub emoji, :+1:).
@@ -47,57 +46,55 @@ export function emojiModifier(node) {
  * @param {number} start
  */
 function changeParent(node, matches, start) {
-  var children = node.children
-  var end = start
-  var index = -1
+  let end = start
+  let index = -1
   /** @type {Array.<Node>} */
-  var nodes = []
+  const nodes = []
   /** @type {Array.<Node>} */
-  var merged = []
-  /** @type {ChangeResult} */
-  var result
+  const merged = []
   /** @type {Node} */
-  var previous
+  let previous
 
-  while (++index < children.length) {
-    const child = children[index]
-    result = parent(child)
+  while (++index < node.children.length) {
+    const child = node.children[index]
+    const result = parent(child)
       ? changeParent(child, matches, end)
-      : changeLeaf(children[index], matches, end)
-    push.apply(nodes, result.nodes)
+      : changeLeaf(child, matches, end)
+    nodes.push(...result.nodes)
     end = result.end
   }
 
   index = -1
 
   while (++index < nodes.length) {
-    if (nodes[index].type === 'EmoticonNode') {
-      // @ts-expect-error: custom fields.
-      if (previous && previous._match === nodes[index]._match) {
+    const child = nodes[index]
+
+    if (emoticon(child)) {
+      if (previous && emoticon(previous) && previous._match === child._match) {
         // @ts-ignore Both literals.
-        previous.value += nodes[index].value
+        previous.value += child.value
 
         if (!generated(previous)) {
-          previous.position.end = pointEnd(nodes[index])
+          previous.position.end = pointEnd(child)
         }
       } else {
-        previous = nodes[index]
-        merged.push(nodes[index])
+        previous = child
+        merged.push(child)
       }
     } else {
-      previous = null
+      previous = undefined
 
       if (node.type === 'WordNode') {
         /** @type {Parent} */
-        const child = {type: node.type, children: [nodes[index]]}
+        const replacement = {type: node.type, children: [child]}
 
-        if (!generated(nodes[index])) {
-          child.position = position(nodes[index])
+        if (!generated(child)) {
+          replacement.position = position(child)
         }
 
-        merged.push(child)
+        merged.push(replacement)
       } else {
-        merged.push(nodes[index])
+        merged.push(child)
       }
     }
   }
@@ -112,21 +109,17 @@ function changeParent(node, matches, start) {
  * @returns {ChangeResult}
  */
 function changeLeaf(node, matches, start) {
-  var value = toString(node)
-  var point = generated(node) ? null : pointStart(node)
-  var end = start + value.length
-  var index = -1
-  var textEnd = 0
+  const value = toString(node)
+  const point = generated(node) ? undefined : pointStart(node)
+  const end = start + value.length
+  let index = -1
+  let textEnd = 0
   /** @type {Array.<Node>} */
-  var nodes = []
-  /** @type {number} */
-  var emojiEnd
-  /** @type {FindMatch} */
-  var match
+  const nodes = []
 
   while (++index < matches.length) {
-    match = matches[index]
-    emojiEnd = match.end - start + 1
+    const match = matches[index]
+    let emojiEnd = match.end - start + 1
 
     if (match.start - start < value.length && emojiEnd > 0) {
       if (match.start - start > textEnd) {
@@ -188,20 +181,18 @@ function changeLeaf(node, matches, start) {
  * @param {Node} node
  */
 function findEmoji(node) {
-  var emojiExpression = emojiRegex()
+  const emojiExpression = emojiRegex()
   /** @type {Array.<FindMatch>} */
-  var matches = []
-  var value = toString(node)
-  var start = value.indexOf(':')
-  var end = start === -1 ? -1 : value.indexOf(':', start + 1)
-  /** @type {string} */
-  var slice
+  const matches = []
+  const value = toString(node)
+  let start = value.indexOf(':')
+  let end = start === -1 ? -1 : value.indexOf(':', start + 1)
   /** @type {RegExpExecArray} */
-  var match
+  let match
 
   // Get Gemoji shortcodes.
   while (end !== -1) {
-    slice = value.slice(start + 1, end)
+    const slice = value.slice(start + 1, end)
 
     if (own.call(nameToEmoji, slice)) {
       matches.push({start, end})
@@ -265,4 +256,12 @@ function shift(point, offset) {
  */
 function parent(node) {
   return 'children' in node
+}
+
+/**
+ * @param {Node} node
+ * @returns {node is EmoticonNode}
+ */
+function emoticon(node) {
+  return node.type === 'EmoticonNode'
 }

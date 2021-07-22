@@ -31,7 +31,7 @@ import {emojiModifier} from 'nlcst-emoji-modifier'
 import {inspect} from 'unist-util-inspect'
 import {ParseEnglish} from 'parse-english'
 
-var english = new ParseEnglish()
+const english = new ParseEnglish()
 english.useFirst('tokenizeSentence', emojiModifier)
 
 console.log(inspect(english.parse('It’s raining :cat:s and :dog:s.')))

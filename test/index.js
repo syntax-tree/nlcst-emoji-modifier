@@ -15,20 +15,20 @@ import {u} from 'unist-builder'
 import {gemoji} from 'gemoji'
 import {emojiModifier} from '../index.js'
 
-var position = new ParseEnglish()
-var noPosition = new ParseEnglish()
+const position = new ParseEnglish()
+const noPosition = new ParseEnglish()
 noPosition.position = false
 
 position.useFirst('tokenizeSentence', emojiModifier)
 noPosition.useFirst('tokenizeSentence', emojiModifier)
 
-var vs16 = '\uFE0F'
+const vs16 = '\uFE0F'
 
-test('emojiModifier()', function (t) {
-  var root = path.join('test', 'fixtures')
+test('emojiModifier()', (t) => {
+  const root = path.join('test', 'fixtures')
 
   t.throws(
-    function () {
+    () => {
       // @ts-ignore runtime.
       emojiModifier({})
     },
@@ -121,12 +121,12 @@ test('emojiModifier()', function (t) {
     'should support a by GH not required variant selector'
   )
 
-  var files = fs.readdirSync(root)
-  var index = -1
+  const files = fs.readdirSync(root)
+  let index = -1
   /** @type {Node} */
-  var tree
+  let tree
   /** @type {string} */
-  var name
+  let name
 
   while (++index < files.length) {
     if (isHidden(files[index])) continue
@@ -145,24 +145,27 @@ test('emojiModifier()', function (t) {
   t.end()
 })
 
-test('all emoji and gemoji', function (t) {
-  gemoji.forEach(function (info) {
-    var shortcode = ':' + info.names[0] + ':'
-    var emoji = info.emoji
+test('all emoji and gemoji', (t) => {
+  let index = -1
+  while (++index < gemoji.length) {
+    const info = gemoji[index]
 
-    t.doesNotThrow(function () {
-      var fixture = 'Alpha ' + shortcode + ' bravo.'
-      var tree = position.parse(fixture)
-      var node = tree.children[0].children[0].children[2]
+    const shortcode = ':' + info.names[0] + ':'
+    const emoji = info.emoji
+
+    t.doesNotThrow(() => {
+      const fixture = 'Alpha ' + shortcode + ' bravo.'
+      const tree = position.parse(fixture)
+      const node = tree.children[0].children[0].children[2]
 
       assert.strictEqual(node.type, 'EmoticonNode', 'type')
       assert.strictEqual(node.value, shortcode, 'value')
     }, shortcode)
 
-    t.doesNotThrow(function () {
-      var expected = emoji
-      var tree = position.parse('Alpha ' + emoji + ' bravo.')
-      var node = tree.children[0].children[0].children[2]
+    t.doesNotThrow(() => {
+      let expected = emoji
+      let tree = position.parse('Alpha ' + emoji + ' bravo.')
+      let node = tree.children[0].children[0].children[2]
 
       // Try with variant selector.
       if (node.type !== 'EmoticonNode' || node.value !== expected) {
@@ -184,7 +187,7 @@ test('all emoji and gemoji', function (t) {
       assert.strictEqual(node.type, 'EmoticonNode')
       assert.strictEqual(node.value, expected)
     }, emoji)
-  })
+  }
 
   t.end()
 })
