@@ -1,7 +1,9 @@
 /**
  * @typedef {import('unist').Node} Node
+ * @typedef {import('unist').Literal<string>} Literal
  * @typedef {import('unist').Parent} Parent
  * @typedef {import('unist').Point} Point
+ * @typedef {Literal & {type: 'EmoticonNode', _match?: FindMatch}} EmoticonNode
  *
  * @typedef {Object} FindMatch
  * @property {number} start
@@ -55,14 +57,12 @@ function changeParent(node, matches, start) {
   /** @type {ChangeResult} */
   var result
   /** @type {Node} */
-  var child
-  /** @type {Node} */
   var previous
 
   while (++index < children.length) {
-    result = children[index].children
-      ? // @ts-ignore Looks like a parent.
-        changeParent(children[index], matches, end)
+    const child = children[index]
+    result = parent(child)
+      ? changeParent(child, matches, end)
       : changeLeaf(children[index], matches, end)
     push.apply(nodes, result.nodes)
     end = result.end
@@ -72,6 +72,7 @@ function changeParent(node, matches, start) {
 
   while (++index < nodes.length) {
     if (nodes[index].type === 'EmoticonNode') {
+      // @ts-expect-error: custom fields.
       if (previous && previous._match === nodes[index]._match) {
         // @ts-ignore Both literals.
         previous.value += nodes[index].value
@@ -87,7 +88,8 @@ function changeParent(node, matches, start) {
       previous = null
 
       if (node.type === 'WordNode') {
-        child = {type: node.type, children: [nodes[index]]}
+        /** @type {Parent} */
+        const child = {type: node.type, children: [nodes[index]]}
 
         if (!generated(nodes[index])) {
           child.position = position(nodes[index])
@@ -119,8 +121,6 @@ function changeLeaf(node, matches, start) {
   var nodes = []
   /** @type {number} */
   var emojiEnd
-  /** @type {Node} */
-  var child
   /** @type {FindMatch} */
   var match
 
@@ -130,7 +130,8 @@ function changeLeaf(node, matches, start) {
 
     if (match.start - start < value.length && emojiEnd > 0) {
       if (match.start - start > textEnd) {
-        child = {
+        /** @type {Literal} */
+        const child = {
           type: node.type,
           value: value.slice(textEnd, match.start - start)
         }
@@ -150,7 +151,8 @@ function changeLeaf(node, matches, start) {
         emojiEnd = value.length
       }
 
-      child = {
+      /** @type {EmoticonNode} */
+      const child = {
         type: 'EmoticonNode',
         value: value.slice(textEnd, emojiEnd),
         _match: match
@@ -169,7 +171,8 @@ function changeLeaf(node, matches, start) {
   }
 
   if (textEnd < value.length) {
-    child = {type: node.type, value: value.slice(textEnd)}
+    /** @type {Literal} */
+    const child = {type: node.type, value: value.slice(textEnd)}
 
     if (point) {
       child.position = {start: shift(point, textEnd), end: node.position.end}
@@ -228,7 +231,7 @@ function findEmoji(node) {
 }
 
 /**
- * @param {Node} node
+ * @param {EmoticonNode} node
  */
 function removeMatch(node) {
   delete node._match
@@ -254,4 +257,12 @@ function shift(point, offset) {
     column: point.column + offset,
     offset: point.offset + offset
   }
+}
+
+/**
+ * @param {Node} node
+ * @returns {node is Parent}
+ */
+function parent(node) {
+  return 'children' in node
 }
