@@ -52,7 +52,7 @@ function changeParent(node, matches, start) {
   const nodes = []
   /** @type {Array.<Node>} */
   const merged = []
-  /** @type {Node} */
+  /** @type {Node|undefined} */
   let previous
 
   while (++index < node.children.length) {
@@ -71,10 +71,10 @@ function changeParent(node, matches, start) {
 
     if (emoticon(child)) {
       if (previous && emoticon(previous) && previous._match === child._match) {
-        // @ts-ignore Both literals.
         previous.value += child.value
 
         if (!generated(previous)) {
+          // @ts-expect-error: defined.
           previous.position.end = pointEnd(child)
         }
       } else {
@@ -167,7 +167,7 @@ function changeLeaf(node, matches, start) {
     /** @type {Literal} */
     const child = {type: node.type, value: value.slice(textEnd)}
 
-    if (point) {
+    if (point && node.position) {
       child.position = {start: shift(point, textEnd), end: node.position.end}
     }
 
@@ -187,7 +187,7 @@ function findEmoji(node) {
   const value = toString(node)
   let start = value.indexOf(':')
   let end = start === -1 ? -1 : value.indexOf(':', start + 1)
-  /** @type {RegExpExecArray} */
+  /** @type {RegExpExecArray|null} */
   let match
 
   // Get Gemoji shortcodes.
@@ -246,7 +246,7 @@ function shift(point, offset) {
   return {
     line: point.line,
     column: point.column + offset,
-    offset: point.offset + offset
+    offset: (point.offset || 0) + offset
   }
 }
 

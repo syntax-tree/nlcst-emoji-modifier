@@ -6,7 +6,7 @@ import fs from 'fs'
 import path from 'path'
 import assert from 'assert'
 import test from 'tape'
-// @ts-ignore Remove when typed.
+// @ts-expect-error Remove when typed.
 import {ParseEnglish} from 'parse-english'
 import {isHidden} from 'is-hidden'
 import {toString} from 'nlcst-to-string'
@@ -29,7 +29,7 @@ test('emojiModifier()', (t) => {
 
   t.throws(
     () => {
-      // @ts-ignore runtime.
+      // @ts-expect-error runtime.
       emojiModifier({})
     },
     /Missing children in `parent/,
