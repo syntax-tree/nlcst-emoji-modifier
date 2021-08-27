@@ -1,5 +1,5 @@
 /**
- * @typedef {import('unist').Node} Node
+ * @typedef {import('nlcst').Root} Root
  */
 
 import fs from 'node:fs'
@@ -123,16 +123,15 @@ test('emojiModifier()', (t) => {
 
   const files = fs.readdirSync(root)
   let index = -1
-  /** @type {Node} */
-  let tree
-  /** @type {string} */
-  let name
 
   while (++index < files.length) {
     if (isHidden(files[index])) continue
 
-    tree = JSON.parse(String(fs.readFileSync(path.join(root, files[index]))))
-    name = path.basename(files[index], path.extname(files[index]))
+    /** @type {Root} */
+    const tree = JSON.parse(
+      String(fs.readFileSync(path.join(root, files[index])))
+    )
+    const name = path.basename(files[index], path.extname(files[index]))
 
     t.deepEqual(position.parse(toString(tree)), tree, name)
     t.deepEqual(

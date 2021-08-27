@@ -1,16 +1,19 @@
 /**
- * @typedef {import('unist').Node} Node
- * @typedef {import('unist').Literal<string>} Literal
- * @typedef {import('unist').Parent} Parent
+ * @typedef {import('unist').Parent} UnistParent
  * @typedef {import('unist').Point} Point
- * @typedef {Literal & {type: 'EmoticonNode', _match?: FindMatch}} EmoticonNode
+ * @typedef {import('nlcst').Sentence} Sentence
+ * @typedef {import('nlcst').ParagraphContent} ParagraphContent
+ * @typedef {import('nlcst').SentenceContent} SentenceContent
+ * @typedef {import('nlcst').WordContent} WordContent
+ * @typedef {SentenceContent|WordContent} DeepSentenceContent
+ * @typedef {Extract<ParagraphContent|DeepSentenceContent, UnistParent>} DeepSentenceContentParent
+ * @typedef {Exclude<DeepSentenceContent, UnistParent>} DeepSentenceContentLeaf
+ * @typedef {import('nlcst').Word} Word
+ *
+ * @typedef {import('./complex-types').Emoticon} Emoticon
  *
  * @typedef {Object} FindMatch
  * @property {number} start
- * @property {number} end
- *
- * @typedef {Object} ChangeResult
- * @property {Array.<Node>} nodes
  * @property {number} end
  */
 
@@ -26,40 +29,46 @@ const own = {}.hasOwnProperty
 /**
  * Merge emoji (👍) and Gemoji (GitHub emoji, :+1:).
  *
- * @param {Parent} node
+ * @param {Sentence} node
  */
 export function emojiModifier(node) {
   if (!node || !node.children) {
     throw new Error('Missing children in `parent`')
   }
 
+  // @ts-expect-error: assume content model matches (no sentences in sentences).
   node.children = changeParent(node, findEmoji(node), 0).nodes
 
-  visit(node, 'EmoticonNode', removeMatch)
+  visit(node, 'EmoticonNode', (node) => {
+    // @ts-expect-error: custom.
+    delete node._match
+  })
 
   return node
 }
 
 /**
- * @param {Parent} node
- * @param {Array.<FindMatch>} matches
+ * @param {DeepSentenceContentParent} node
+ * @param {FindMatch[]} matches
  * @param {number} start
+ * @returns {{end: number, nodes: DeepSentenceContent[]}}
  */
 function changeParent(node, matches, start) {
   let end = start
   let index = -1
-  /** @type {Array.<Node>} */
+  /** @type {DeepSentenceContent[]} */
   const nodes = []
-  /** @type {Array.<Node>} */
+  /** @type {DeepSentenceContent[]} */
   const merged = []
-  /** @type {Node|undefined} */
+  /** @type {DeepSentenceContent|undefined} */
   let previous
 
   while (++index < node.children.length) {
     const child = node.children[index]
-    const result = parent(child)
-      ? changeParent(child, matches, end)
-      : changeLeaf(child, matches, end)
+    const result =
+      'children' in child
+        ? changeParent(child, matches, end)
+        : changeLeaf(child, matches, end)
     nodes.push(...result.nodes)
     end = result.end
   }
@@ -69,8 +78,13 @@ function changeParent(node, matches, start) {
   while (++index < nodes.length) {
     const child = nodes[index]
 
-    if (emoticon(child)) {
-      if (previous && emoticon(previous) && previous._match === child._match) {
+    if (child.type === 'EmoticonNode') {
+      if (
+        previous &&
+        previous.type === 'EmoticonNode' &&
+        // @ts-expect-error: custom.
+        previous._match === child._match
+      ) {
         previous.value += child.value
 
         if (!generated(previous)) {
@@ -85,7 +99,8 @@ function changeParent(node, matches, start) {
       previous = undefined
 
       if (node.type === 'WordNode') {
-        /** @type {Parent} */
+        /** @type {typeof node} */
+        // @ts-expect-error: assume content model matches (no words in words).
         const replacement = {type: node.type, children: [child]}
 
         if (!generated(child)) {
@@ -103,10 +118,10 @@ function changeParent(node, matches, start) {
 }
 
 /**
- * @param {Node} node
- * @param {Array.<FindMatch>} matches
+ * @param {DeepSentenceContentLeaf} node
+ * @param {FindMatch[]} matches
  * @param {number} start
- * @returns {ChangeResult}
+ * @returns {{end: number, nodes: DeepSentenceContent[]}}
  */
 function changeLeaf(node, matches, start) {
   const value = toString(node)
@@ -114,7 +129,7 @@ function changeLeaf(node, matches, start) {
   const end = start + value.length
   let index = -1
   let textEnd = 0
-  /** @type {Array.<Node>} */
+  /** @type {DeepSentenceContentLeaf[]} */
   const nodes = []
 
   while (++index < matches.length) {
@@ -123,7 +138,7 @@ function changeLeaf(node, matches, start) {
 
     if (match.start - start < value.length && emojiEnd > 0) {
       if (match.start - start > textEnd) {
-        /** @type {Literal} */
+        /** @type {typeof node} */
         const child = {
           type: node.type,
           value: value.slice(textEnd, match.start - start)
@@ -144,12 +159,14 @@ function changeLeaf(node, matches, start) {
         emojiEnd = value.length
       }
 
-      /** @type {EmoticonNode} */
+      /** @type {Emoticon} */
       const child = {
         type: 'EmoticonNode',
-        value: value.slice(textEnd, emojiEnd),
-        _match: match
+        value: value.slice(textEnd, emojiEnd)
       }
+
+      // @ts-expect-error: removed later.
+      child._match = match
 
       if (point) {
         child.position = {
@@ -164,7 +181,7 @@ function changeLeaf(node, matches, start) {
   }
 
   if (textEnd < value.length) {
-    /** @type {Literal} */
+    /** @type {typeof node} */
     const child = {type: node.type, value: value.slice(textEnd)}
 
     if (point && node.position) {
@@ -178,11 +195,12 @@ function changeLeaf(node, matches, start) {
 }
 
 /**
- * @param {Node} node
+ * @param {Sentence} node
+ * @returns {FindMatch[]}
  */
 function findEmoji(node) {
   const emojiExpression = emojiRegex()
-  /** @type {Array.<FindMatch>} */
+  /** @type {FindMatch[]} */
   const matches = []
   const value = toString(node)
   let start = value.indexOf(':')
@@ -222,13 +240,6 @@ function findEmoji(node) {
 }
 
 /**
- * @param {EmoticonNode} node
- */
-function removeMatch(node) {
-  delete node._match
-}
-
-/**
  * @param {FindMatch} a
  * @param {FindMatch} b
  * @returns {number}
@@ -248,20 +259,4 @@ function shift(point, offset) {
     column: point.column + offset,
     offset: (point.offset || 0) + offset
   }
-}
-
-/**
- * @param {Node} node
- * @returns {node is Parent}
- */
-function parent(node) {
-  return 'children' in node
-}
-
-/**
- * @param {Node} node
- * @returns {node is EmoticonNode}
- */
-function emoticon(node) {
-  return node.type === 'EmoticonNode'
 }
