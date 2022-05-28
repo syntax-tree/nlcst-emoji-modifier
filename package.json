@@ -34,7 +34,7 @@
   ],
   "dependencies": {
     "@types/nlcst": "^1.0.0",
-    "emoji-regex": "^9.0.0",
+    "emoji-regex": "^10.0.0",
     "gemoji": "^7.0.0",
     "nlcst-to-string": "^3.0.0",
     "unist-util-generated": "^2.0.0",
