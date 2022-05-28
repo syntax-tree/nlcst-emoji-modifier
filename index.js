@@ -12,7 +12,7 @@
  *
  * @typedef {import('./complex-types').Emoticon} Emoticon
  *
- * @typedef {Object} FindMatch
+ * @typedef FindMatch
  * @property {number} start
  * @property {number} end
  */
@@ -49,16 +49,16 @@ export function emojiModifier(node) {
 
 /**
  * @param {DeepSentenceContentParent} node
- * @param {FindMatch[]} matches
+ * @param {Array<FindMatch>} matches
  * @param {number} start
- * @returns {{end: number, nodes: DeepSentenceContent[]}}
+ * @returns {{end: number, nodes: Array<DeepSentenceContent>}}
  */
 function changeParent(node, matches, start) {
   let end = start
   let index = -1
-  /** @type {DeepSentenceContent[]} */
+  /** @type {Array<DeepSentenceContent>} */
   const nodes = []
-  /** @type {DeepSentenceContent[]} */
+  /** @type {Array<DeepSentenceContent>} */
   const merged = []
   /** @type {DeepSentenceContent|undefined} */
   let previous
@@ -119,9 +119,9 @@ function changeParent(node, matches, start) {
 
 /**
  * @param {DeepSentenceContentLeaf} node
- * @param {FindMatch[]} matches
+ * @param {Array<FindMatch>} matches
  * @param {number} start
- * @returns {{end: number, nodes: DeepSentenceContent[]}}
+ * @returns {{end: number, nodes: Array<DeepSentenceContent>}}
  */
 function changeLeaf(node, matches, start) {
   const value = toString(node)
@@ -129,7 +129,7 @@ function changeLeaf(node, matches, start) {
   const end = start + value.length
   let index = -1
   let textEnd = 0
-  /** @type {DeepSentenceContentLeaf[]} */
+  /** @type {Array<DeepSentenceContentLeaf>} */
   const nodes = []
 
   while (++index < matches.length) {
@@ -196,11 +196,11 @@ function changeLeaf(node, matches, start) {
 
 /**
  * @param {Sentence} node
- * @returns {FindMatch[]}
+ * @returns {Array<FindMatch>}
  */
 function findEmoji(node) {
   const emojiExpression = emojiRegex()
-  /** @type {FindMatch[]} */
+  /** @type {Array<FindMatch>} */
   const matches = []
   const value = toString(node)
   let start = value.indexOf(':')
