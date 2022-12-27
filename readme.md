@@ -209,7 +209,7 @@ abide by its terms.
 
 [coc]: https://github.com/syntax-tree/.github/blob/main/code-of-conduct.md
 
-[retext-emoji]: https://github.com/syntax-tree/retext-emoji
+[retext-emoji]: https://github.com/retextjs/retext-emoji
 
 [nlcst]: https://github.com/syntax-tree/nlcst
 
