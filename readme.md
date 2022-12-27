@@ -33,7 +33,7 @@ them into separate nodes.
 
 This package is a tiny utility that helps when dealing with emoji and gemoji in
 natural language.
-The plugin [`retext-emoji`][https://github.com/retextjs/retext-emoji] wraps this utility and others at a
+The plugin [`retext-emoji`][retext-emoji] wraps this utility and others at a
 higher-level (easier) abstraction.
 
 ## Install
@@ -209,7 +209,7 @@ abide by its terms.
 
 [coc]: https://github.com/syntax-tree/.github/blob/main/code-of-conduct.md
 
-[retext-emoji]: https://github.com/syntax-tree/retext-emoji
+[retext-emoji]: https://github.com/retextjs/retext-emoji
 
 [nlcst]: https://github.com/syntax-tree/nlcst
 
