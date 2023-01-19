@@ -6,11 +6,10 @@
  * @typedef {import('nlcst').SentenceContent} SentenceContent
  * @typedef {import('nlcst').WordContent} WordContent
  * @typedef {SentenceContent|WordContent} DeepSentenceContent
- * @typedef {Extract<ParagraphContent|DeepSentenceContent, UnistParent>} DeepSentenceContentParent
+ * @typedef {Extract<Sentence | DeepSentenceContent, UnistParent>} DeepSentenceContentParent
  * @typedef {Exclude<DeepSentenceContent, UnistParent>} DeepSentenceContentLeaf
- * @typedef {import('nlcst').Word} Word
  *
- * @typedef {import('./complex-types').Emoticon} Emoticon
+ * @typedef {import('./complex-types.js').Emoticon} Emoticon
  *
  * @typedef FindMatch
  * @property {number} start
@@ -87,7 +86,7 @@ function changeParent(node, matches, start) {
       ) {
         previous.value += child.value
 
-        if (!generated(previous)) {
+        if (previous && !generated(previous)) {
           // @ts-expect-error: defined.
           previous.position.end = pointEnd(child)
         }
