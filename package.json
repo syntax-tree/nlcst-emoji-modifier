@@ -37,6 +37,7 @@
     "@types/nlcst": "^1.0.0",
     "emoji-regex": "^10.0.0",
     "gemoji": "^8.0.0",
+    "nlcst-emoticon-modifier": "^2.0.0",
     "nlcst-to-string": "^3.0.0",
     "unist-util-generated": "^2.0.0",
     "unist-util-position": "^4.0.0",
