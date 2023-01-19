@@ -18,6 +18,7 @@
 *   [Use](#use)
 *   [API](#api)
     *   [`emojiModifier(node)`](#emojimodifiernode)
+    *   [`Emoticon`](#emoticon)
 *   [Types](#types)
 *   [Compatibility](#compatibility)
 *   [Related](#related)
@@ -39,7 +40,7 @@ higher-level (easier) abstraction.
 ## Install
 
 This package is [ESM only][esm].
-In Node.js (version 12.20+, 14.14+, 16.0+, 18.0+), install with [npm][]:
+In Node.js (version 14.14+ and 16.0+), install with [npm][]:
 
 ```sh
 npm install nlcst-emoji-modifier
@@ -48,14 +49,14 @@ npm install nlcst-emoji-modifier
 In Deno with [`esm.sh`][esmsh]:
 
 ```js
-import {emojiModifier} from "https://esm.sh/nlcst-emoji-modifier@5"
+import {emojiModifier} from 'https://esm.sh/nlcst-emoji-modifier@5'
 ```
 
 In browsers with [`esm.sh`][esmsh]:
 
 ```html
 <script type="module">
-  import {emojiModifier} from "https://esm.sh/nlcst-emoji-modifier@5?bundle"
+  import {emojiModifier} from 'https://esm.sh/nlcst-emoji-modifier@5?bundle'
 </script>
 ```
 
@@ -101,20 +102,35 @@ RootNode[1] (1:1-1:32, 0-31)
 
 ## API
 
-This package exports the identifier `emojiModifier`.
+This package exports the identifier [`emojiModifier`][emojimodifier].
 There is no default export.
 
 ### `emojiModifier(node)`
 
-Classify emoji and gemoji in `node` ([`Sentence`][sentence]) as
-`EmoticonNode`s.
+Classify emoji (👍) and Gemoji (GitHub emoji, :+1:) in `node` as `Emoticon`s.
+
+###### Parameters
+
+*   `node` ([`Sentence`][sentence])
+    — sentence to transform
+
+###### Returns
+
+Given, transformed, node ([`Sentence`][sentence]).
+
+### `Emoticon`
+
+Emoticon node (TypeScript type).
+
+See [`Emoticon` in `nlcst-emoticon-modifier`][emoticon-mofifier-emoticon].
 
 ## Types
 
 This package is fully typed with [TypeScript][].
-It exports no additional types.
+It exports the additional type [`Emoticon`][emoticon].
 
-It also registers the `Emoticon` node type with `@types/nlcst`.
+It also registers the `Emoticon` node type with `@types/nlcst` in
+`SentenceContentMap`.
 If you’re working with the syntax tree, make sure to import this utility
 somewhere in your types, as that registers the new node types in the tree.
 
@@ -137,7 +153,7 @@ visit(tree, (node) => {
 
 Projects maintained by the unified collective are compatible with all maintained
 versions of Node.js.
-As of now, that is Node.js 12.20+, 14.14+, 16.0+, and 18.0+.
+As of now, that is Node.js 14.14+ and 16.0+.
 Our projects sometimes work with older versions, but this is not guaranteed.
 
 ## Related
@@ -214,3 +230,9 @@ abide by its terms.
 [nlcst]: https://github.com/syntax-tree/nlcst
 
 [sentence]: https://github.com/syntax-tree/nlcst#sentence
+
+[emoticon-mofifier-emoticon]: https://github.com/syntax-tree/nlcst-emoticon-modifier#emoticon
+
+[emojimodifier]: #emojimodifiernode
+
+[emoticon]: #emoticon
