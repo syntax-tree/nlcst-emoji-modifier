@@ -67,7 +67,7 @@ import {inspect} from 'unist-util-inspect'
 import {ParseEnglish} from 'parse-english'
 
 const english = new ParseEnglish()
-english.useFirst('tokenizeSentence', emojiModifier)
+english.tokenizeSentencePlugins.unshift(emojiModifier)
 
 console.log(inspect(english.parse('It’s raining :cat:s and :dog:s.')))
 ```

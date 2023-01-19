@@ -1,26 +1,26 @@
 /**
  * @typedef {import('nlcst').Root} Root
+ * @typedef {import('nlcst').Content} Content
+ */
+
+/**
+ * @typedef {Content | Root} Node
  */
 
 import fs from 'node:fs'
 import path from 'node:path'
 import assert from 'node:assert'
 import test from 'tape'
-// @ts-expect-error Remove when typed.
 import {ParseEnglish} from 'parse-english'
 import {isHidden} from 'is-hidden'
 import {toString} from 'nlcst-to-string'
-import {removePosition} from 'unist-util-remove-position'
 import {u} from 'unist-builder'
 import {gemoji} from 'gemoji'
 import {emojiModifier} from '../index.js'
 
-const position = new ParseEnglish()
-const noPosition = new ParseEnglish()
-noPosition.position = false
+const parser = new ParseEnglish()
 
-position.useFirst('tokenizeSentence', emojiModifier)
-noPosition.useFirst('tokenizeSentence', emojiModifier)
+parser.tokenizeSentencePlugins.unshift(emojiModifier)
 
 const vs16 = '\uFE0F'
 
@@ -128,17 +128,13 @@ test('emojiModifier()', (t) => {
     if (isHidden(files[index])) continue
 
     /** @type {Root} */
-    const tree = JSON.parse(
+    const expected = JSON.parse(
       String(fs.readFileSync(path.join(root, files[index])))
     )
     const name = path.basename(files[index], path.extname(files[index]))
+    const input = toString(expected)
 
-    t.deepEqual(position.parse(toString(tree)), tree, name)
-    t.deepEqual(
-      noPosition.parse(toString(tree)),
-      removePosition(tree, true),
-      name + ' (positionless)'
-    )
+    t.deepEqual(parser.parse(input), expected, name)
   }
 
   t.end()
@@ -154,16 +150,20 @@ test('all emoji and gemoji', (t) => {
 
     t.doesNotThrow(() => {
       const fixture = 'Alpha ' + shortcode + ' bravo.'
-      const tree = position.parse(fixture)
+      const tree = parser.parse(fixture)
+      /** @type {Node} */
+      // @ts-expect-error: cleaner delve.
       const node = tree.children[0].children[0].children[2]
 
-      assert.strictEqual(node.type, 'EmoticonNode', 'type')
+      assert.ok(node.type === 'EmoticonNode', 'type')
       assert.strictEqual(node.value, shortcode, 'value')
     }, shortcode)
 
     t.doesNotThrow(() => {
       let expected = emoji
-      let tree = position.parse('Alpha ' + emoji + ' bravo.')
+      let tree = parser.parse('Alpha ' + emoji + ' bravo.')
+      /** @type {Node} */
+      // @ts-expect-error: cleaner delve.
       let node = tree.children[0].children[0].children[2]
 
       // Try with variant selector.
@@ -172,18 +172,20 @@ test('all emoji and gemoji', (t) => {
           expected.charAt(expected.length - 1) === vs16
             ? expected
             : expected + vs16
-        tree = position.parse('Alpha ' + expected + ' bravo.')
+        tree = parser.parse('Alpha ' + expected + ' bravo.')
+        // @ts-expect-error: cleaner delve.
         node = tree.children[0].children[0].children[2]
 
         // Try without variant selector.
         if (node.type !== 'EmoticonNode' || node.value !== expected) {
           expected = expected.slice(0, -1)
-          tree = position.parse('Alpha ' + expected + ' bravo.')
+          tree = parser.parse('Alpha ' + expected + ' bravo.')
+          // @ts-expect-error: cleaner delve.
           node = tree.children[0].children[0].children[2]
         }
       }
 
-      assert.strictEqual(node.type, 'EmoticonNode')
+      assert.ok(node.type === 'EmoticonNode')
       assert.strictEqual(node.value, expected)
     }, emoji)
   }
