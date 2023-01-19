@@ -16,6 +16,7 @@ import {toString} from 'nlcst-to-string'
 import {u} from 'unist-builder'
 import {gemoji} from 'gemoji'
 import {emojiModifier} from '../index.js'
+import * as mod from '../index.js'
 
 const parser = new ParseEnglish()
 
@@ -23,7 +24,13 @@ parser.tokenizeSentencePlugins.unshift(emojiModifier)
 
 const vs16 = '\uFE0F'
 
-test('emojiModifier()', async () => {
+test('emojiModifier', async () => {
+  assert.deepEqual(
+    Object.keys(mod).sort(),
+    ['emojiModifier'],
+    'should expose the public api'
+  )
+
   assert.throws(
     () => {
       // @ts-expect-error runtime.
