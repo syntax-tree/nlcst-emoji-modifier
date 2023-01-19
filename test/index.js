@@ -7,10 +7,9 @@
  * @typedef {Content | Root} Node
  */
 
-import fs from 'node:fs'
-import path from 'node:path'
-import assert from 'node:assert'
-import test from 'tape'
+import assert from 'node:assert/strict'
+import fs from 'node:fs/promises'
+import test from 'node:test'
 import {ParseEnglish} from 'parse-english'
 import {isHidden} from 'is-hidden'
 import {toString} from 'nlcst-to-string'
@@ -24,10 +23,8 @@ parser.tokenizeSentencePlugins.unshift(emojiModifier)
 
 const vs16 = '\uFE0F'
 
-test('emojiModifier()', (t) => {
-  const root = path.join('test', 'fixtures')
-
-  t.throws(
+test('emojiModifier()', async () => {
+  assert.throws(
     () => {
       // @ts-expect-error runtime.
       emojiModifier({})
@@ -36,7 +33,7 @@ test('emojiModifier()', (t) => {
     'should throw when not given a parent'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     emojiModifier(
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Alpha')]),
@@ -64,7 +61,7 @@ test('emojiModifier()', (t) => {
     'should merge whole words with surrounding punctuation'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     emojiModifier(
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Alpha')]),
@@ -83,7 +80,7 @@ test('emojiModifier()', (t) => {
     'should merge punctuation and words'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     emojiModifier(
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Alpha')]),
@@ -102,7 +99,7 @@ test('emojiModifier()', (t) => {
     'should merge punctuation, symbols, words'
   )
 
-  t.deepEqual(
+  assert.deepEqual(
     emojiModifier(
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Zap')]),
@@ -121,26 +118,25 @@ test('emojiModifier()', (t) => {
     'should support a by GH not required variant selector'
   )
 
-  const files = fs.readdirSync(root)
+  const root = new URL('fixtures/', import.meta.url)
+  const files = await fs.readdir(root)
   let index = -1
 
   while (++index < files.length) {
-    if (isHidden(files[index])) continue
+    const file = files[index]
+
+    if (isHidden(file)) continue
 
     /** @type {Root} */
-    const expected = JSON.parse(
-      String(fs.readFileSync(path.join(root, files[index])))
-    )
-    const name = path.basename(files[index], path.extname(files[index]))
-    const input = toString(expected)
+    const tree = JSON.parse(String(await fs.readFile(new URL(file, root))))
+    const name = file.split('.').slice(0, -1).join('.')
+    const input = toString(tree)
 
-    t.deepEqual(parser.parse(input), expected, name)
+    assert.deepEqual(parser.parse(input), tree, name)
   }
-
-  t.end()
 })
 
-test('all emoji and gemoji', (t) => {
+test('all emoji and gemoji', () => {
   let index = -1
   while (++index < gemoji.length) {
     const info = gemoji[index]
@@ -148,7 +144,7 @@ test('all emoji and gemoji', (t) => {
     const shortcode = ':' + info.names[0] + ':'
     const emoji = info.emoji
 
-    t.doesNotThrow(() => {
+    assert.doesNotThrow(() => {
       const fixture = 'Alpha ' + shortcode + ' bravo.'
       const tree = parser.parse(fixture)
       /** @type {Node} */
@@ -156,10 +152,10 @@ test('all emoji and gemoji', (t) => {
       const node = tree.children[0].children[0].children[2]
 
       assert.ok(node.type === 'EmoticonNode', 'type')
-      assert.strictEqual(node.value, shortcode, 'value')
+      assert.equal(node.value, shortcode, 'value')
     }, shortcode)
 
-    t.doesNotThrow(() => {
+    assert.doesNotThrow(() => {
       let expected = emoji
       let tree = parser.parse('Alpha ' + emoji + ' bravo.')
       /** @type {Node} */
@@ -186,9 +182,7 @@ test('all emoji and gemoji', (t) => {
       }
 
       assert.ok(node.type === 'EmoticonNode')
-      assert.strictEqual(node.value, expected)
+      assert.equal(node.value, expected)
     }, emoji)
   }
-
-  t.end()
 })
