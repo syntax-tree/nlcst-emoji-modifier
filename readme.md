@@ -117,7 +117,7 @@ See [`Emoticon` in `nlcst-emoticon-modifier`][emoticon-mofifier-emoticon].
 
 ###### Returns
 
-Given, transformed, node ([`Sentence`][sentence]).
+Nothing (`undefined`).
 
 ## Types
 

@@ -14,7 +14,6 @@ import {emojiModifier} from '../index.js'
 
 const parser = new ParseEnglish()
 
-// @ts-expect-error: can be removed when `plugin` yields `undefined`.
 parser.tokenizeSentencePlugins.unshift(emojiModifier)
 
 const vs16 = '\uFE0F'
@@ -36,26 +35,28 @@ test('emojiModifier', async function (t) {
   await t.test(
     'should merge whole words with surrounding punctuation',
     async function () {
+      const tree = u('SentenceNode', [
+        u('WordNode', [u('TextNode', 'Alpha')]),
+        u('WhiteSpaceNode', ' '),
+        u('PunctuationNode', ':'),
+        u('WordNode', [
+          u('TextNode', 'south'),
+          u('PunctuationNode', '_'),
+          u('TextNode', 'georgia'),
+          u('PunctuationNode', '_'),
+          u('TextNode', 'south'),
+          u('PunctuationNode', '_'),
+          u('TextNode', 'sandwich'),
+          u('PunctuationNode', '_'),
+          u('TextNode', 'islands')
+        ]),
+        u('PunctuationNode', ':')
+      ])
+
+      emojiModifier(tree)
+
       assert.deepEqual(
-        emojiModifier(
-          u('SentenceNode', [
-            u('WordNode', [u('TextNode', 'Alpha')]),
-            u('WhiteSpaceNode', ' '),
-            u('PunctuationNode', ':'),
-            u('WordNode', [
-              u('TextNode', 'south'),
-              u('PunctuationNode', '_'),
-              u('TextNode', 'georgia'),
-              u('PunctuationNode', '_'),
-              u('TextNode', 'south'),
-              u('PunctuationNode', '_'),
-              u('TextNode', 'sandwich'),
-              u('PunctuationNode', '_'),
-              u('TextNode', 'islands')
-            ]),
-            u('PunctuationNode', ':')
-          ])
-        ),
+        tree,
         u('SentenceNode', [
           u('WordNode', [u('TextNode', 'Alpha')]),
           u('WhiteSpaceNode', ' '),
@@ -66,17 +67,19 @@ test('emojiModifier', async function (t) {
   )
 
   await t.test('should merge punctuation and words', async function () {
+    const tree = u('SentenceNode', [
+      u('WordNode', [u('TextNode', 'Alpha')]),
+      u('WhiteSpaceNode', ' '),
+      u('PunctuationNode', ':'),
+      u('PunctuationNode', '-'),
+      u('WordNode', [u('TextNode', '1')]),
+      u('PunctuationNode', ':')
+    ])
+
+    emojiModifier(tree)
+
     assert.deepEqual(
-      emojiModifier(
-        u('SentenceNode', [
-          u('WordNode', [u('TextNode', 'Alpha')]),
-          u('WhiteSpaceNode', ' '),
-          u('PunctuationNode', ':'),
-          u('PunctuationNode', '-'),
-          u('WordNode', [u('TextNode', '1')]),
-          u('PunctuationNode', ':')
-        ])
-      ),
+      tree,
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Alpha')]),
         u('WhiteSpaceNode', ' '),
@@ -86,17 +89,19 @@ test('emojiModifier', async function (t) {
   })
 
   await t.test('should merge punctuation, symbols, words', async function () {
+    const tree = u('SentenceNode', [
+      u('WordNode', [u('TextNode', 'Alpha')]),
+      u('WhiteSpaceNode', ' '),
+      u('PunctuationNode', ':'),
+      u('SymbolNode', '+'),
+      u('WordNode', [u('TextNode', '1')]),
+      u('PunctuationNode', ':')
+    ])
+
+    emojiModifier(tree)
+
     assert.deepEqual(
-      emojiModifier(
-        u('SentenceNode', [
-          u('WordNode', [u('TextNode', 'Alpha')]),
-          u('WhiteSpaceNode', ' '),
-          u('PunctuationNode', ':'),
-          u('SymbolNode', '+'),
-          u('WordNode', [u('TextNode', '1')]),
-          u('PunctuationNode', ':')
-        ])
-      ),
+      tree,
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Alpha')]),
         u('WhiteSpaceNode', ' '),
@@ -108,16 +113,18 @@ test('emojiModifier', async function (t) {
   await t.test(
     'should support a by GH not required variant selector',
     async function () {
+      const tree = u('SentenceNode', [
+        u('WordNode', [u('TextNode', 'Zap')]),
+        u('WhiteSpaceNode', ' '),
+        u('SymbolNode', '⚡'),
+        u('WordNode', [u('TextNode', '️')]),
+        u('PunctuationNode', '.')
+      ])
+
+      emojiModifier(tree)
+
       assert.deepEqual(
-        emojiModifier(
-          u('SentenceNode', [
-            u('WordNode', [u('TextNode', 'Zap')]),
-            u('WhiteSpaceNode', ' '),
-            u('SymbolNode', '⚡'),
-            u('WordNode', [u('TextNode', '️')]),
-            u('PunctuationNode', '.')
-          ])
-        ),
+        tree,
         u('SentenceNode', [
           u('WordNode', [u('TextNode', 'Zap')]),
           u('WhiteSpaceNode', ' '),
