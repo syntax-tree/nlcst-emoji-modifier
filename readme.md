@@ -48,14 +48,14 @@ npm install nlcst-emoji-modifier
 In Deno with [`esm.sh`][esmsh]:
 
 ```js
-import {emojiModifier} from 'https://esm.sh/nlcst-emoji-modifier@5'
+import {emojiModifier} from 'https://esm.sh/nlcst-emoji-modifier@6'
 ```
 
 In browsers with [`esm.sh`][esmsh]:
 
 ```html
 <script type="module">
-  import {emojiModifier} from 'https://esm.sh/nlcst-emoji-modifier@5?bundle'
+  import {emojiModifier} from 'https://esm.sh/nlcst-emoji-modifier@6?bundle'
 </script>
 ```
 
