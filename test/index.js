@@ -7,10 +7,10 @@ import fs from 'node:fs/promises'
 import test from 'node:test'
 import {gemoji} from 'gemoji'
 import {isHidden} from 'is-hidden'
+import {emojiModifier} from 'nlcst-emoji-modifier'
 import {toString} from 'nlcst-to-string'
 import {ParseEnglish} from 'parse-english'
 import {u} from 'unist-builder'
-import {emojiModifier} from '../index.js'
 
 const parser = new ParseEnglish()
 
@@ -20,7 +20,7 @@ const vs16 = '\uFE0F'
 
 test('emojiModifier', async function (t) {
   await t.test('should expose the public api', async function () {
-    assert.deepEqual(Object.keys(await import('../index.js')).sort(), [
+    assert.deepEqual(Object.keys(await import('nlcst-emoji-modifier')).sort(), [
       'emojiModifier'
     ])
   })
