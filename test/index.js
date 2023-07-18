@@ -27,7 +27,7 @@ test('emojiModifier', async function (t) {
 
   await t.test('should throw when not given a parent', async function () {
     assert.throws(function () {
-      // @ts-expect-error: check how a non-set is handled
+      // @ts-expect-error: check how a non-parent is handled.
       emojiModifier({type: 'TextNode', value: 'Alpha'})
     }, /Missing children in `parent/)
   })
