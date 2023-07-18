@@ -39,7 +39,8 @@
     "nlcst-emoticon-modifier": "^3.0.0",
     "nlcst-to-string": "^4.0.0",
     "unist-util-generated": "^3.0.0",
-    "unist-util-position": "^5.0.0"
+    "unist-util-position": "^5.0.0",
+    "unist-util-visit-parents": "^6.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
