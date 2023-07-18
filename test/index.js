@@ -1,10 +1,6 @@
 /**
+ * @typedef {import('nlcst').Nodes} Nodes
  * @typedef {import('nlcst').Root} Root
- * @typedef {import('nlcst').Content} Content
- */
-
-/**
- * @typedef {Content | Root} Node
  */
 
 import assert from 'node:assert/strict'
@@ -20,6 +16,7 @@ import * as mod from '../index.js'
 
 const parser = new ParseEnglish()
 
+// @ts-expect-error: can be removed when `plugin` yields `undefined`.
 parser.tokenizeSentencePlugins.unshift(emojiModifier)
 
 const vs16 = '\uFE0F'
@@ -154,7 +151,7 @@ test('all emoji and gemoji', () => {
     assert.doesNotThrow(() => {
       const fixture = 'Alpha ' + shortcode + ' bravo.'
       const tree = parser.parse(fixture)
-      /** @type {Node} */
+      /** @type {Nodes} */
       // @ts-expect-error: cleaner delve.
       const node = tree.children[0].children[0].children[2]
 
@@ -165,7 +162,7 @@ test('all emoji and gemoji', () => {
     assert.doesNotThrow(() => {
       let expected = emoji
       let tree = parser.parse('Alpha ' + emoji + ' bravo.')
-      /** @type {Node} */
+      /** @type {Nodes} */
       // @ts-expect-error: cleaner delve.
       let node = tree.children[0].children[0].children[2]
 
