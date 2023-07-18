@@ -134,6 +134,8 @@ It also registers the `Emoticon` node type with `@types/nlcst` in
 If you’re working with the syntax tree, make sure to import this utility
 somewhere in your types, as that registers the new node types in the tree.
 
+<!-- To do: users can install `nlcst-emoticon-modifier` to get this. -->
+
 ```js
 /**
  * @typedef {import('nlcst-emoji-modifier')}
@@ -144,7 +146,7 @@ import {visit} from 'unist-util-visit'
 /** @type {import('nlcst').Root} */
 const tree = getNodeSomeHow()
 
-visit(tree, (node) => {
+visit(tree, function (node) {
   // `node` can now be a `Emoticon` node.
 })
 ```

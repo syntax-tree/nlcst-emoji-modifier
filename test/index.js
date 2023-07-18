@@ -1,18 +1,16 @@
 /**
- * @typedef {import('nlcst').Nodes} Nodes
  * @typedef {import('nlcst').Root} Root
  */
 
 import assert from 'node:assert/strict'
 import fs from 'node:fs/promises'
 import test from 'node:test'
-import {ParseEnglish} from 'parse-english'
+import {gemoji} from 'gemoji'
 import {isHidden} from 'is-hidden'
 import {toString} from 'nlcst-to-string'
+import {ParseEnglish} from 'parse-english'
 import {u} from 'unist-builder'
-import {gemoji} from 'gemoji'
 import {emojiModifier} from '../index.js'
-import * as mod from '../index.js'
 
 const parser = new ParseEnglish()
 
@@ -21,107 +19,117 @@ parser.tokenizeSentencePlugins.unshift(emojiModifier)
 
 const vs16 = '\uFE0F'
 
-test('emojiModifier', async () => {
-  assert.deepEqual(
-    Object.keys(mod).sort(),
-    ['emojiModifier'],
-    'should expose the public api'
+test('emojiModifier', async function (t) {
+  await t.test('should expose the public api', async function () {
+    assert.deepEqual(Object.keys(await import('../index.js')).sort(), [
+      'emojiModifier'
+    ])
+  })
+
+  await t.test('should throw when not given a parent', async function () {
+    assert.throws(function () {
+      // @ts-expect-error: check how a non-set is handled
+      emojiModifier({type: 'TextNode', value: 'Alpha'})
+    }, /Missing children in `parent/)
+  })
+
+  await t.test(
+    'should merge whole words with surrounding punctuation',
+    async function () {
+      assert.deepEqual(
+        emojiModifier(
+          u('SentenceNode', [
+            u('WordNode', [u('TextNode', 'Alpha')]),
+            u('WhiteSpaceNode', ' '),
+            u('PunctuationNode', ':'),
+            u('WordNode', [
+              u('TextNode', 'south'),
+              u('PunctuationNode', '_'),
+              u('TextNode', 'georgia'),
+              u('PunctuationNode', '_'),
+              u('TextNode', 'south'),
+              u('PunctuationNode', '_'),
+              u('TextNode', 'sandwich'),
+              u('PunctuationNode', '_'),
+              u('TextNode', 'islands')
+            ]),
+            u('PunctuationNode', ':')
+          ])
+        ),
+        u('SentenceNode', [
+          u('WordNode', [u('TextNode', 'Alpha')]),
+          u('WhiteSpaceNode', ' '),
+          u('EmoticonNode', ':south_georgia_south_sandwich_islands:')
+        ])
+      )
+    }
   )
 
-  assert.throws(
-    () => {
-      // @ts-expect-error runtime.
-      emojiModifier({})
-    },
-    /Missing children in `parent/,
-    'should throw when not given a parent'
-  )
-
-  assert.deepEqual(
-    emojiModifier(
+  await t.test('should merge punctuation and words', async function () {
+    assert.deepEqual(
+      emojiModifier(
+        u('SentenceNode', [
+          u('WordNode', [u('TextNode', 'Alpha')]),
+          u('WhiteSpaceNode', ' '),
+          u('PunctuationNode', ':'),
+          u('PunctuationNode', '-'),
+          u('WordNode', [u('TextNode', '1')]),
+          u('PunctuationNode', ':')
+        ])
+      ),
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Alpha')]),
         u('WhiteSpaceNode', ' '),
-        u('PunctuationNode', ':'),
-        u('WordNode', [
-          u('TextNode', 'south'),
-          u('PunctuationNode', '_'),
-          u('TextNode', 'georgia'),
-          u('PunctuationNode', '_'),
-          u('TextNode', 'south'),
-          u('PunctuationNode', '_'),
-          u('TextNode', 'sandwich'),
-          u('PunctuationNode', '_'),
-          u('TextNode', 'islands')
-        ]),
-        u('PunctuationNode', ':')
+        u('EmoticonNode', ':-1:')
       ])
-    ),
-    u('SentenceNode', [
-      u('WordNode', [u('TextNode', 'Alpha')]),
-      u('WhiteSpaceNode', ' '),
-      u('EmoticonNode', ':south_georgia_south_sandwich_islands:')
-    ]),
-    'should merge whole words with surrounding punctuation'
-  )
+    )
+  })
 
-  assert.deepEqual(
-    emojiModifier(
+  await t.test('should merge punctuation, symbols, words', async function () {
+    assert.deepEqual(
+      emojiModifier(
+        u('SentenceNode', [
+          u('WordNode', [u('TextNode', 'Alpha')]),
+          u('WhiteSpaceNode', ' '),
+          u('PunctuationNode', ':'),
+          u('SymbolNode', '+'),
+          u('WordNode', [u('TextNode', '1')]),
+          u('PunctuationNode', ':')
+        ])
+      ),
       u('SentenceNode', [
         u('WordNode', [u('TextNode', 'Alpha')]),
         u('WhiteSpaceNode', ' '),
-        u('PunctuationNode', ':'),
-        u('PunctuationNode', '-'),
-        u('WordNode', [u('TextNode', '1')]),
-        u('PunctuationNode', ':')
+        u('EmoticonNode', ':+1:')
       ])
-    ),
-    u('SentenceNode', [
-      u('WordNode', [u('TextNode', 'Alpha')]),
-      u('WhiteSpaceNode', ' '),
-      u('EmoticonNode', ':-1:')
-    ]),
-    'should merge punctuation and words'
-  )
+    )
+  })
 
-  assert.deepEqual(
-    emojiModifier(
-      u('SentenceNode', [
-        u('WordNode', [u('TextNode', 'Alpha')]),
-        u('WhiteSpaceNode', ' '),
-        u('PunctuationNode', ':'),
-        u('SymbolNode', '+'),
-        u('WordNode', [u('TextNode', '1')]),
-        u('PunctuationNode', ':')
-      ])
-    ),
-    u('SentenceNode', [
-      u('WordNode', [u('TextNode', 'Alpha')]),
-      u('WhiteSpaceNode', ' '),
-      u('EmoticonNode', ':+1:')
-    ]),
-    'should merge punctuation, symbols, words'
+  await t.test(
+    'should support a by GH not required variant selector',
+    async function () {
+      assert.deepEqual(
+        emojiModifier(
+          u('SentenceNode', [
+            u('WordNode', [u('TextNode', 'Zap')]),
+            u('WhiteSpaceNode', ' '),
+            u('SymbolNode', '⚡'),
+            u('WordNode', [u('TextNode', '️')]),
+            u('PunctuationNode', '.')
+          ])
+        ),
+        u('SentenceNode', [
+          u('WordNode', [u('TextNode', 'Zap')]),
+          u('WhiteSpaceNode', ' '),
+          u('EmoticonNode', '⚡️'),
+          u('PunctuationNode', '.')
+        ])
+      )
+    }
   )
+})
 
-  assert.deepEqual(
-    emojiModifier(
-      u('SentenceNode', [
-        u('WordNode', [u('TextNode', 'Zap')]),
-        u('WhiteSpaceNode', ' '),
-        u('SymbolNode', '⚡'),
-        u('WordNode', [u('TextNode', '️')]),
-        u('PunctuationNode', '.')
-      ])
-    ),
-    u('SentenceNode', [
-      u('WordNode', [u('TextNode', 'Zap')]),
-      u('WhiteSpaceNode', ' '),
-      u('EmoticonNode', '⚡️'),
-      u('PunctuationNode', '.')
-    ]),
-    'should support a by GH not required variant selector'
-  )
-
+test('fixtures', async function (t) {
   const root = new URL('fixtures/', import.meta.url)
   const files = await fs.readdir(root)
   let index = -1
@@ -131,62 +139,76 @@ test('emojiModifier', async () => {
 
     if (isHidden(file)) continue
 
-    /** @type {Root} */
-    const tree = JSON.parse(String(await fs.readFile(new URL(file, root))))
     const name = file.split('.').slice(0, -1).join('.')
-    const input = toString(tree)
 
-    assert.deepEqual(parser.parse(input), tree, name)
+    await t.test(name, async function () {
+      /** @type {Root} */
+      const tree = JSON.parse(String(await fs.readFile(new URL(file, root))))
+      const input = toString(tree)
+
+      assert.deepEqual(parser.parse(input), tree, name)
+    })
   }
 })
 
-test('all emoji and gemoji', () => {
+test('all emoji and gemoji', async function (t) {
   let index = -1
+
   while (++index < gemoji.length) {
     const info = gemoji[index]
-
     const shortcode = ':' + info.names[0] + ':'
     const emoji = info.emoji
 
-    assert.doesNotThrow(() => {
-      const fixture = 'Alpha ' + shortcode + ' bravo.'
-      const tree = parser.parse(fixture)
-      /** @type {Nodes} */
-      // @ts-expect-error: cleaner delve.
-      const node = tree.children[0].children[0].children[2]
+    await t.test(shortcode + ': ' + emoji, async function () {
+      assert.doesNotThrow(function () {
+        const fixture = 'Alpha ' + shortcode + ' bravo.'
+        const tree = parser.parse(fixture)
+        const paragraph = tree.children[0]
+        assert(paragraph.type === 'ParagraphNode')
+        const sentence = paragraph.children[0]
+        assert(sentence.type === 'SentenceNode')
+        const node = sentence.children[2]
+        assert(node.type === 'EmoticonNode')
+        assert.equal(node.value, shortcode)
+      })
 
-      assert.ok(node.type === 'EmoticonNode', 'type')
-      assert.equal(node.value, shortcode, 'value')
-    }, shortcode)
+      assert.doesNotThrow(function () {
+        let expected = emoji
+        const tree = parser.parse('Alpha ' + emoji + ' bravo.')
+        const paragraph = tree.children[0]
+        assert(paragraph.type === 'ParagraphNode')
+        const sentence = paragraph.children[0]
+        assert(sentence.type === 'SentenceNode')
+        let node = sentence.children[2]
 
-    assert.doesNotThrow(() => {
-      let expected = emoji
-      let tree = parser.parse('Alpha ' + emoji + ' bravo.')
-      /** @type {Nodes} */
-      // @ts-expect-error: cleaner delve.
-      let node = tree.children[0].children[0].children[2]
-
-      // Try with variant selector.
-      if (node.type !== 'EmoticonNode' || node.value !== expected) {
-        expected =
-          expected.charAt(expected.length - 1) === vs16
-            ? expected
-            : expected + vs16
-        tree = parser.parse('Alpha ' + expected + ' bravo.')
-        // @ts-expect-error: cleaner delve.
-        node = tree.children[0].children[0].children[2]
-
-        // Try without variant selector.
+        // Try with variant selector.
         if (node.type !== 'EmoticonNode' || node.value !== expected) {
-          expected = expected.slice(0, -1)
-          tree = parser.parse('Alpha ' + expected + ' bravo.')
-          // @ts-expect-error: cleaner delve.
-          node = tree.children[0].children[0].children[2]
-        }
-      }
+          expected =
+            expected.charAt(expected.length - 1) === vs16
+              ? expected
+              : expected + vs16
+          const tree = parser.parse('Alpha ' + expected + ' bravo.')
+          const paragraph = tree.children[0]
+          assert(paragraph.type === 'ParagraphNode')
+          const sentence = paragraph.children[0]
+          assert(sentence.type === 'SentenceNode')
+          node = sentence.children[2]
 
-      assert.ok(node.type === 'EmoticonNode')
-      assert.equal(node.value, expected)
-    }, emoji)
+          // Try without variant selector.
+          if (node.type !== 'EmoticonNode' || node.value !== expected) {
+            expected = expected.slice(0, -1)
+            const tree = parser.parse('Alpha ' + expected + ' bravo.')
+            const paragraph = tree.children[0]
+            assert(paragraph.type === 'ParagraphNode')
+            const sentence = paragraph.children[0]
+            assert(sentence.type === 'SentenceNode')
+            node = sentence.children[2]
+          }
+        }
+
+        assert(node.type === 'EmoticonNode')
+        assert.equal(node.value, expected)
+      })
+    })
   }
 })
